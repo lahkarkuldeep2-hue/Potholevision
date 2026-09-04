@@ -1,0 +1,289 @@
+@import "tailwindcss";
+
+:root {
+  --background: #d9e0e7;
+  --foreground: #102a43;
+
+  --surface: #f7f9fb;
+  --surface-strong: #ffffff;
+  --surface-muted: #eef2f5;
+
+  --navy: #0f2238;
+  --navy-light: #193b5c;
+  --blue: #2f669f;
+  --blue-light: #e6eff7;
+
+  --border: #cbd5df;
+  --border-light: #dce3e9;
+
+  --text-primary: #102a43;
+  --text-secondary: #58708a;
+  --text-muted: #8193a5;
+
+  --success: #08a878;
+  --warning: #d58a16;
+  --danger: #d94b4b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+html {
+  background: var(--background);
+}
+
+body {
+  position: relative;
+  overflow-x: hidden;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.24),
+      rgba(213, 222, 231, 0.18)
+    ),
+    #d9e0e7;
+  color: var(--foreground);
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+/* -------------------------------------------------------
+   SUBTLE INFRASTRUCTURE / GPS BACKGROUND
+   ------------------------------------------------------- */
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      28deg,
+      transparent 0%,
+      transparent 42%,
+      rgba(49, 91, 126, 0.055) 42.15%,
+      transparent 42.35%
+    ),
+    linear-gradient(
+      154deg,
+      transparent 0%,
+      transparent 58%,
+      rgba(49, 91, 126, 0.045) 58.15%,
+      transparent 58.35%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.18) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.14) 1px,
+      transparent 1px
+    );
+
+  background-size:
+    100% 100%,
+    100% 100%,
+    72px 72px,
+    72px 72px;
+
+  opacity: 0.65;
+}
+
+/* Large subtle GPS/radar circles */
+
+body::after {
+  content: "";
+  position: fixed;
+  width: 680px;
+  height: 680px;
+  right: -280px;
+  top: 80px;
+  z-index: -1;
+  pointer-events: none;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      transparent 0 30%,
+      rgba(47, 102, 159, 0.035) 30.2% 30.5%,
+      transparent 30.7% 48%,
+      rgba(47, 102, 159, 0.03) 48.2% 48.5%,
+      transparent 48.7% 66%,
+      rgba(47, 102, 159, 0.025) 66.2% 66.5%,
+      transparent 66.7%
+    );
+}
+
+/* -------------------------------------------------------
+   BASE CONTROLS
+   ------------------------------------------------------- */
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid rgba(47, 102, 159, 0.45);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: #b9d0e4;
+  color: #102a43;
+}
+
+/* -------------------------------------------------------
+   PREMIUM SCROLLBAR
+   ------------------------------------------------------- */
+
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: #d4dce4;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #9aaaba;
+  border-radius: 999px;
+  border: 2px solid #d4dce4;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #74879a;
+}
+
+/* -------------------------------------------------------
+   PREMIUM SURFACE HELPERS
+   ------------------------------------------------------- */
+
+.premium-surface {
+  background: rgba(247, 249, 251, 0.94);
+  border: 1px solid var(--border-light);
+  box-shadow:
+    0 1px 2px rgba(15, 34, 56, 0.04),
+    0 8px 24px rgba(15, 34, 56, 0.06);
+}
+
+.premium-surface:hover {
+  border-color: #c2cfdb;
+  box-shadow:
+    0 2px 4px rgba(15, 34, 56, 0.05),
+    0 12px 28px rgba(15, 34, 56, 0.08);
+}
+
+/* -------------------------------------------------------
+   MAP / GPS VISUAL HELPERS
+   ------------------------------------------------------- */
+
+.infrastructure-grid {
+  background-color: #263b50;
+  background-image:
+    linear-gradient(
+      rgba(174, 195, 211, 0.08) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(174, 195, 211, 0.08) 1px,
+      transparent 1px
+    );
+  background-size: 44px 44px;
+}
+
+.gps-route {
+  position: relative;
+}
+
+.gps-route::after {
+  content: "";
+  position: absolute;
+  inset: 12% 8%;
+  border-top: 2px solid rgba(178, 198, 215, 0.3);
+  border-bottom: 2px solid rgba(178, 198, 215, 0.18);
+  transform: rotate(-7deg);
+  pointer-events: none;
+}
+
+/* -------------------------------------------------------
+   PREMIUM MAP MARKER
+   ------------------------------------------------------- */
+
+.gps-marker {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 4px solid #2f669f;
+  box-shadow: 0 2px 8px rgba(15, 34, 56, 0.25);
+}
+
+/* -------------------------------------------------------
+   REDUCE MOTION FOR PROFESSIONAL UI
+   ------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* -------------------------------------------------------
+   RESPONSIVE
+   ------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  body::after {
+    width: 480px;
+    height: 480px;
+    right: -260px;
+    top: 140px;
+  }
+}
+
+@media (max-width: 640px) {
+  body::before {
+    background-size:
+      100% 100%,
+      100% 100%,
+      52px 52px,
+      52px 52px;
+  }
+
+  body::after {
+    opacity: 0.45;
+  }
+}

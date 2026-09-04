@@ -1,0 +1,30 @@
+# Environment variables
+.env
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# Python uploads / generated files
+uploads/
+*.log
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+
+# Build / cache
+dist/
+build/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
