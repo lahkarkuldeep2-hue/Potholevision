@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
+python-dotenv
+ultralytics
+huggingface_hub
+python-multipart
+opencv-python-headless
+supervision
