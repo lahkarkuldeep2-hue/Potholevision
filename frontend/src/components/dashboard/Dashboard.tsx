@@ -690,52 +690,43 @@ export default function Dashboard() {
         )}
 
         {/* Stats */}
-        <div className="relative grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-5">
-          <StatCard
-            title="Total Potholes"
-            value={loading ? "..." : String(totalPotholes)}
-            change=""
-            live
-            icon={<AlertTriangle size={21} />}
-            iconClass="bg-red-50 text-red-500"
-          />
+<div className="relative grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+  <StatCard
+    title="Total Potholes"
+    value={loading ? "..." : String(totalPotholes)}
+    change=""
+    live
+    icon={<AlertTriangle size={21} />}
+    iconClass="bg-red-50 text-red-500"
+  />
 
-          <StatCard
-            title="Inspections"
-            value={loading ? "..." : String(inspections.length)}
-            change=""
-            live
-            icon={<FileText size={21} />}
-            iconClass="bg-blue-50 text-[#557ca5]"
-          />
+  <StatCard
+    title="Inspections"
+    value={loading ? "..." : String(inspections.length)}
+    change=""
+    live
+    icon={<FileText size={21} />}
+    iconClass="bg-blue-50 text-[#557ca5]"
+  />
 
-          <StatCard
-            title="Work Orders"
-            value={loading ? "..." : String(workOrders.length)}
-            change=""
-            live
-            icon={<Wrench size={21} />}
-            iconClass="bg-slate-100 text-[#557ca5]"
-          />
+  <StatCard
+    title="Work Orders"
+    value={loading ? "..." : String(workOrders.length)}
+    change=""
+    live
+    icon={<Wrench size={21} />}
+    iconClass="bg-slate-100 text-[#557ca5]"
+  />
 
-          <StatCard
-            title="Resolved"
-            value={loading ? "..." : String(resolvedCount)}
-            change=""
-            live
-            icon={<CheckCircle2 size={21} />}
-            iconClass="bg-emerald-50 text-emerald-600"
-          />
-
-          <StatCard
-            title="Avg. Confidence"
-            value={`${(averageConfidence * 100).toFixed(1)}%`}
-            change=""
-            live
-            icon={<Clock3 size={21} />}
-            iconClass="bg-blue-50 text-[#557ca5]"
-          />
-        </div>
+  <StatCard
+    title="Resolved"
+    value={loading ? "..." : String(resolvedCount)}
+    change=""
+    live
+    icon={<CheckCircle2 size={21} />}
+    iconClass="bg-emerald-50 text-emerald-600"
+  />
+</div>
 
         {/* Main Analytics */}
         <div className="relative grid grid-cols-12 gap-5">

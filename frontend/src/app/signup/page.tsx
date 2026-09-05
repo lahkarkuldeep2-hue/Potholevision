@@ -4,8 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
+  process.env.NEXT_PUBLIC_API_URL || "https://potholevision.onrender.com";
 export default function SignupPage() {
   const router = useRouter();
 

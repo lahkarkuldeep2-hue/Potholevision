@@ -1,3 +1,5 @@
+import os
+
 from datetime import datetime, timedelta, timezone
 
 from fastapi import Depends, HTTPException, status
@@ -14,7 +16,7 @@ from models.user import User
 # AUTH CONFIG
 # =========================================================
 
-SECRET_KEY = "CHANGE_THIS_IN_ENV"
+SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 
