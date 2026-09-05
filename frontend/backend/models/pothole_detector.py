@@ -1,4 +1,5 @@
 from pathlib import Path
+import gc
 
 import cv2
 from ultralytics import YOLO
@@ -16,11 +17,12 @@ class PotholeDetector:
             )
 
         self.model = YOLO(str(self.model_path))
+
         return self.model
 
     def detect(self, image_path: str):
         """
-        Detect potholes in a single image.
+        Memory-efficient pothole detection for a single image.
         """
 
         if self.model is None:
@@ -29,16 +31,22 @@ class PotholeDetector:
         results = self.model.predict(
             source=image_path,
             conf=0.25,
+            imgsz=416,
+            max_det=50,
+            device="cpu",
+            stream=True,
             verbose=False,
         )
 
         detections = []
 
         for result in results:
+
             if result.boxes is None:
                 continue
 
             for box in result.boxes:
+
                 confidence = float(box.conf[0])
                 class_id = int(box.cls[0])
 
@@ -57,6 +65,10 @@ class PotholeDetector:
                     }
                 )
 
+            del result
+
+        gc.collect()
+
         return detections
 
     def detect_video(
@@ -65,7 +77,7 @@ class PotholeDetector:
         output_path: str = "uploads/videos/annotated_output.mp4",
     ):
         """
-        Detect and track potholes in a video using YOLO + ByteTrack.
+        Memory-efficient YOLO + ByteTrack video detection.
         """
 
         if self.model is None:
@@ -79,14 +91,33 @@ class PotholeDetector:
             )
 
         fps = video.get(cv2.CAP_PROP_FPS)
-        width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        original_width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+        original_height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
         total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
 
         if fps <= 0:
             fps = 30.0
 
+        # -----------------------------------------
+        # Limit resolution to reduce Render RAM use
+        # -----------------------------------------
+
+        max_dimension = 1280
+
+        scale = min(
+            1.0,
+            max_dimension / max(original_width, original_height),
+        )
+
+        width = int(original_width * scale)
+        height = int(original_height * scale)
+
+        if width <= 0 or height <= 0:
+            video.release()
+            raise ValueError("Invalid video dimensions")
+
         output_file = Path(output_path)
+
         output_file.parent.mkdir(
             parents=True,
             exist_ok=True,
@@ -103,12 +134,21 @@ class PotholeDetector:
             (width, height),
         )
 
+        if not writer.isOpened():
+            video.release()
+            raise ValueError(
+                f"Unable to create output video: {output_file}"
+            )
+
         tracked_potholes = {}
 
         frame_number = 0
+        processed_frames = 0
 
         try:
+
             while True:
+
                 success, frame = video.read()
 
                 if not success:
@@ -116,15 +156,48 @@ class PotholeDetector:
 
                 frame_number += 1
 
+                # -----------------------------------------
+                # Resize large frames to save memory
+                # -----------------------------------------
+
+                if scale < 1.0:
+
+                    frame = cv2.resize(
+                        frame,
+                        (width, height),
+                        interpolation=cv2.INTER_AREA,
+                    )
+
+                processed_frames += 1
+
+                # -----------------------------------------
+                # YOLO + ByteTrack
+                # -----------------------------------------
+
                 results = self.model.track(
                     source=frame,
                     conf=0.25,
+                    imgsz=416,
+                    max_det=30,
+                    device="cpu",
                     persist=True,
                     tracker="bytetrack.yaml",
                     verbose=False,
                 )
 
+                if not results:
+                    writer.write(frame)
+
+                    del frame
+                    gc.collect()
+
+                    continue
+
                 result = results[0]
+
+                # -----------------------------------------
+                # Store best detection for each track
+                # -----------------------------------------
 
                 if result.boxes is not None:
 
@@ -140,15 +213,13 @@ class PotholeDetector:
                         if box.id is not None:
                             track_id = int(box.id[0])
 
-                        # ----------------------------------
-                        # Use tracking ID for deduplication
-                        # ----------------------------------
-
-                        unique_id = (
-                            f"track_{track_id}"
-                            if track_id is not None
-                            else f"frame_{frame_number}_{len(tracked_potholes)}"
-                        )
+                        if track_id is not None:
+                            unique_id = f"track_{track_id}"
+                        else:
+                            unique_id = (
+                                f"frame_{frame_number}_"
+                                f"{len(tracked_potholes)}"
+                            )
 
                         detection = {
                             "track_id": track_id,
@@ -166,35 +237,50 @@ class PotholeDetector:
                             },
                         }
 
-                        # Keep highest-confidence detection
-                        # for each tracked pothole.
+                        previous = tracked_potholes.get(
+                            unique_id
+                        )
 
                         if (
-                            unique_id not in tracked_potholes
+                            previous is None
                             or confidence
-                            > tracked_potholes[
-                                unique_id
-                            ]["confidence"]
+                            > previous["confidence"]
                         ):
                             tracked_potholes[
                                 unique_id
                             ] = detection
 
-                # --------------------------------------
-                # Write annotated frame
-                # --------------------------------------
+                # -----------------------------------------
+                # Draw detections
+                # -----------------------------------------
 
                 annotated_frame = result.plot()
 
                 writer.write(annotated_frame)
 
+                # -----------------------------------------
+                # Explicitly release frame memory
+                # -----------------------------------------
+
+                del annotated_frame
+                del result
+                del results
+                del frame
+
+                # Garbage collection periodically
+                if processed_frames % 10 == 0:
+                    gc.collect()
+
         finally:
+
             video.release()
             writer.release()
 
+            gc.collect()
+
         return {
             "total_frames": total_frames,
-            "processed_frames": frame_number,
+            "processed_frames": processed_frames,
             "unique_potholes": len(
                 tracked_potholes
             ),
