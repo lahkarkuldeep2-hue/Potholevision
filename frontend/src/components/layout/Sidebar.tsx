@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Map,
@@ -11,6 +12,7 @@ import {
   UserRound,
   ScanSearch,
   X,
+  LogOut,
 } from "lucide-react";
 
 const menuItems = [
@@ -46,11 +48,54 @@ type SidebarProps = {
   onClose?: () => void;
 };
 
+type StoredUser = {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+};
+
+function formatRole(role: string) {
+  return role
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
 export default function Sidebar({
   mobileOpen = false,
   onClose = () => {},
 }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const [user, setUser] = useState<StoredUser | null>(null);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+
+    if (!storedUser) {
+      return;
+    }
+
+    try {
+      setUser(JSON.parse(storedUser));
+    } catch {
+      setUser(null);
+    }
+  }, []);
+
+  function handleLogout() {
+    setLoggingOut(true);
+
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user");
+
+    onClose();
+
+    router.push("/login");
+  }
 
   return (
     <>
@@ -171,7 +216,7 @@ export default function Sidebar({
           </div>
         </div>
 
-        {/* User */}
+        {/* Logged-in User */}
         <div className="shrink-0 border-t border-[#1d344d] px-6 py-5">
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#31516e] bg-[#152a40]">
@@ -181,16 +226,30 @@ export default function Sidebar({
               />
             </div>
 
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="truncate text-[15px] font-semibold text-white">
-                System Administrator
+                {user?.name || "User"}
               </p>
 
               <p className="text-[12px] text-[#7893ad]">
-                Administrator
+                {user?.role ? formatRole(user.role) : "Citizen"}
               </p>
             </div>
           </div>
+
+          {/* Logout */}
+          <button
+            type="button"
+            onClick={handleLogout}
+            disabled={loggingOut}
+            className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-[12px] border border-[#3a536b] bg-[#132a42] text-[14px] font-semibold text-[#c5d3df] transition hover:border-red-400/50 hover:bg-red-500/10 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <LogOut size={17} />
+
+            <span>
+              {loggingOut ? "Signing out..." : "Logout"}
+            </span>
+          </button>
         </div>
       </aside>
     </>

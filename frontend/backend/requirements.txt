@@ -8,3 +8,4 @@ huggingface_hub
 python-multipart
 opencv-python-headless
 supervision
+bcrypt==4.0.1

@@ -8,7 +8,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 
-import Sidebar from "@/components/layout/Sidebar";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 import PotholeMap from "@/components/map/PotholeMap";
 
 type Pothole = {
@@ -21,7 +21,7 @@ type Pothole = {
   description?: string | null;
 };
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://potholevision.onrender.com";
 
 export default function LiveMapPage() {
   const [potholes, setPotholes] = useState<Pothole[]>([]);
@@ -68,8 +68,9 @@ export default function LiveMapPage() {
       }
     } catch (err) {
       console.error(err);
+
       setError(
-        "Could not connect to PotholeVision backend. Make sure the backend server is running."
+        "Could not connect to PotholeVision backend. Please try again."
       );
     } finally {
       setLoading(false);
@@ -120,19 +121,17 @@ export default function LiveMapPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#dfe5eb]">
-      <Sidebar />
-
-      <main className="ml-[315px] min-h-screen px-6 py-8">
+    <DashboardLayout>
+      <div className="min-w-0">
         {/* Header */}
         <div className="mb-6">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#55779d]">
             Live Monitoring
           </p>
 
-          <div className="mt-2 flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-[#102a43]">
+          <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <h1 className="text-3xl font-bold text-[#102a43] sm:text-3xl">
                 Live Infrastructure Map
               </h1>
 
@@ -141,7 +140,7 @@ export default function LiveMapPage() {
               </p>
             </div>
 
-            <div className="flex items-center gap-2 rounded-xl border border-[#c8d5e1] bg-[#f8fafc] px-4 py-3 text-sm text-[#315a82] shadow-sm">
+            <div className="flex w-fit shrink-0 items-center gap-2 rounded-xl border border-[#c8d5e1] bg-[#f8fafc] px-4 py-3 text-sm text-[#315a82] shadow-sm">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
               GPS Active
             </div>
@@ -149,16 +148,16 @@ export default function LiveMapPage() {
         </div>
 
         {/* Map Card */}
-        <section className="w-full overflow-hidden rounded-2xl border border-[#c8d5e1] bg-[#f8fafc] shadow-[0_8px_30px_rgba(16,42,67,0.08)]">
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-[#d7e0e8] px-5 py-4">
-            <div className="flex items-center gap-3">
-              <div className="rounded-xl bg-[#e8f0f7] p-2.5 text-[#376b9d]">
+        <section className="w-full min-w-0 overflow-hidden rounded-2xl border border-[#c8d5e1] bg-[#f8fafc] shadow-[0_8px_30px_rgba(16,42,67,0.08)]">
+          {/* Card Header */}
+          <div className="flex min-w-0 items-center justify-between gap-3 border-b border-[#d7e0e8] px-4 py-4 sm:px-5">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="shrink-0 rounded-xl bg-[#e8f0f7] p-2.5 text-[#376b9d]">
                 <Map size={20} />
               </div>
 
-              <div>
-                <h2 className="text-sm font-semibold text-[#102a43]">
+              <div className="min-w-0">
+                <h2 className="truncate text-sm font-semibold text-[#102a43]">
                   PotholeVision GPS Network
                 </h2>
 
@@ -170,7 +169,7 @@ export default function LiveMapPage() {
               </div>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex shrink-0 gap-2">
               <button
                 type="button"
                 onClick={locateFirstPothole}
@@ -195,10 +194,10 @@ export default function LiveMapPage() {
           </div>
 
           {/* Map */}
-          <div className="relative h-[620px] overflow-hidden">
+          <div className="relative h-[520px] w-full min-w-0 overflow-hidden sm:h-[620px]">
             {error ? (
-              <div className="flex h-full items-center justify-center bg-[#263b50] px-6 text-center">
-                <div className="max-w-md rounded-2xl border border-red-400/20 bg-[#102a43] p-6 text-white shadow-xl">
+              <div className="flex h-full w-full items-center justify-center bg-[#263b50] px-4 text-center sm:px-6">
+                <div className="w-full max-w-md rounded-2xl border border-red-400/20 bg-[#102a43] p-5 text-white shadow-xl sm:p-6">
                   <div className="mb-3 text-lg font-semibold">
                     Map data unavailable
                   </div>
@@ -225,68 +224,68 @@ export default function LiveMapPage() {
                 />
 
                 {/* Live Overlay */}
-                <div className="pointer-events-none absolute left-5 top-5 z-[1000] rounded-xl border border-white/20 bg-[#102a43]/95 px-4 py-3 text-white shadow-xl">
+                <div className="pointer-events-none absolute left-3 top-3 z-[1000] rounded-xl border border-white/20 bg-[#102a43]/95 px-3 py-2.5 text-white shadow-xl sm:left-5 sm:top-5 sm:px-4 sm:py-3">
                   <div className="flex items-center gap-2">
                     <Navigation
                       size={14}
                       className="text-[#8eb5d8]"
                     />
 
-                    <p className="text-xs font-semibold tracking-wide">
+                    <p className="text-[10px] font-semibold tracking-wide sm:text-xs">
                       LIVE GPS MONITORING
                     </p>
                   </div>
 
-                  <p className="mt-1 text-[10px] text-[#b9c9d8]">
+                  <p className="mt-1 text-[9px] text-[#b9c9d8] sm:text-[10px]">
                     Real PostgreSQL pothole locations
                   </p>
                 </div>
 
                 {/* Legend */}
-                <div className="absolute bottom-5 left-5 z-[1000] rounded-xl border border-white/20 bg-[#102a43]/95 px-4 py-3 text-xs text-white shadow-xl">
-                  <p className="mb-2 font-semibold">
-                    Severity
-                  </p>
+                <div className="absolute bottom-3 left-3 z-[1000] rounded-xl border border-white/20 bg-[#102a43]/95 px-3 py-2.5 text-[10px] text-white shadow-xl sm:bottom-5 sm:left-5 sm:px-4 sm:py-3 sm:text-xs">
+                  <p className="mb-2 font-semibold">Severity</p>
 
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 sm:gap-x-4">
                     <span className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full bg-red-600" />
+                      <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-red-600" />
                       Critical ({criticalCount})
                     </span>
 
                     <span className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full bg-orange-500" />
+                      <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-orange-500" />
                       High ({highCount})
                     </span>
 
                     <span className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full bg-blue-600" />
+                      <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-blue-600" />
                       Medium ({mediumCount})
                     </span>
 
                     <span className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full bg-green-600" />
+                      <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-green-600" />
                       Low ({lowCount})
                     </span>
                   </div>
                 </div>
 
-                {/* Bottom status */}
-                <div className="absolute bottom-5 right-5 z-[1000] flex items-center gap-4 rounded-xl border border-white/20 bg-[#102a43]/95 px-4 py-3 text-xs text-white shadow-xl">
-                  <span className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                {/* Bottom Status */}
+                <div className="absolute bottom-3 right-3 z-[1000] flex max-w-[calc(100%-24px)] items-center gap-2 rounded-xl border border-white/20 bg-[#102a43]/95 px-3 py-2.5 text-[10px] text-white shadow-xl sm:bottom-5 sm:right-5 sm:gap-4 sm:px-4 sm:py-3 sm:text-xs">
+                  <span className="flex items-center gap-2 whitespace-nowrap">
+                    <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
                     {gpsPotholes.length} GPS locations
                   </span>
 
                   <span className="text-white/30">|</span>
 
-                  <span>{potholes.length} total potholes</span>
+                  <span className="whitespace-nowrap">
+                    {potholes.length} total potholes
+                  </span>
                 </div>
               </>
             )}
           </div>
         </section>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }

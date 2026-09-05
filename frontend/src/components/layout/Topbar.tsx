@@ -1,18 +1,37 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Bell,
   CalendarDays,
+  LogOut,
   Menu,
   Search,
 } from "lucide-react";
 
 export default function Topbar() {
+  const router = useRouter();
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  function handleLogout() {
+    setLoggingOut(true);
+
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user");
+
+    router.push("/login");
+  }
+
   return (
     <header className="sticky top-0 z-40 flex h-[82px] items-center justify-between border-b border-[#e7e0f2] bg-[#f7f4fb]/90 px-7 backdrop-blur-xl">
       {/* Left */}
       <div className="flex items-center gap-4">
-        <button className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#e7e0f2] bg-white text-[#171126] shadow-sm transition hover:border-violet-300 hover:text-violet-600 lg:hidden">
+        <button
+          type="button"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#e7e0f2] bg-white text-[#171126] shadow-sm transition hover:border-violet-300 hover:text-violet-600 lg:hidden"
+          aria-label="Open menu"
+        >
           <Menu size={20} />
         </button>
 
@@ -44,7 +63,10 @@ export default function Topbar() {
         </div>
 
         {/* Notification */}
-        <button className="relative flex h-11 w-11 items-center justify-center rounded-xl border border-[#e7e0f2] bg-white text-[#514960] shadow-sm transition hover:border-violet-300 hover:text-violet-600">
+        <button
+          type="button"
+          className="relative flex h-11 w-11 items-center justify-center rounded-xl border border-[#e7e0f2] bg-white text-[#514960] shadow-sm transition hover:border-violet-300 hover:text-violet-600"
+        >
           <Bell size={19} />
 
           <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-500 px-1 text-[10px] font-bold text-white shadow-lg shadow-violet-500/30">
@@ -53,10 +75,25 @@ export default function Topbar() {
         </button>
 
         {/* Date */}
-        <button className="flex h-11 items-center gap-2 rounded-xl border border-[#e7e0f2] bg-white px-4 text-sm font-medium text-[#332b43] shadow-sm transition hover:border-violet-300">
+        <button
+          type="button"
+          className="flex h-11 items-center gap-2 rounded-xl border border-[#e7e0f2] bg-white px-4 text-sm font-medium text-[#332b43] shadow-sm transition hover:border-violet-300"
+        >
           <CalendarDays size={17} className="text-violet-600" />
 
           <span>May 20 - May 26, 2024</span>
+        </button>
+
+        {/* Logout */}
+        <button
+          type="button"
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className="flex h-11 items-center gap-2 rounded-xl border border-red-100 bg-white px-4 text-sm font-semibold text-red-600 shadow-sm transition hover:border-red-200 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <LogOut size={17} />
+
+          <span>{loggingOut ? "Signing out..." : "Logout"}</span>
         </button>
       </div>
     </header>

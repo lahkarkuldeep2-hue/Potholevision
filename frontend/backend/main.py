@@ -13,10 +13,12 @@ from sqlalchemy.orm import Session
 
 from database import Base, engine, get_db
 from models.pothole import Pothole
+from models.user import User
 from models.complaint import Complaint
 from models.inspection import Inspection
 from models.work_order import WorkOrder
 from models.pothole_detector import PotholeDetector
+from auth import hash_password, verify_password, create_access_token, get_current_user
 
 
 # =========================================================
@@ -285,6 +287,114 @@ def get_work_order_dict(work_order: WorkOrder):
 # =========================================================
 # ROOT
 # =========================================================
+
+# =========================================================
+# AUTHENTICATION
+# =========================================================
+
+class RegisterRequest(BaseModel):
+    name: str = Field(..., min_length=2, max_length=150)
+    email: str = Field(..., min_length=5, max_length=255)
+    password: str = Field(..., min_length=8, max_length=72)
+
+
+class LoginRequest(BaseModel):
+    email: str = Field(..., min_length=5, max_length=255)
+    password: str = Field(..., min_length=8, max_length=72)
+
+
+@app.post("/auth/register")
+def register_user(
+    payload: RegisterRequest,
+    db: Session = Depends(get_db),
+):
+    email = payload.email.strip().lower()
+
+    existing_user = (
+        db.query(User)
+        .filter(User.email == email)
+        .first()
+    )
+
+    if existing_user:
+        raise HTTPException(
+            status_code=400,
+            detail="An account with this email already exists",
+        )
+
+    user = User(
+        name=payload.name.strip(),
+        email=email,
+        password_hash=hash_password(payload.password),
+        role="CITIZEN",
+    )
+
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    return {
+        "message": "Account created successfully",
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "role": user.role,
+        },
+    }
+
+
+@app.post("/auth/login")
+def login_user(
+    payload: LoginRequest,
+    db: Session = Depends(get_db),
+):
+    email = payload.email.strip().lower()
+
+    user = (
+        db.query(User)
+        .filter(User.email == email)
+        .first()
+    )
+
+    if not user or not verify_password(
+        payload.password,
+        user.password_hash,
+    ):
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid email or password",
+        )
+
+    access_token = create_access_token(
+        user_id=user.id,
+        role=user.role,
+    )
+
+    return {
+        "message": "Login successful",
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "role": user.role,
+        },
+    }
+
+
+@app.get("/auth/me")
+def get_my_profile(
+    current_user: User = Depends(get_current_user),
+):
+    return {
+        "id": current_user.id,
+        "name": current_user.name,
+        "email": current_user.email,
+        "role": current_user.role,
+        "created_at": current_user.created_at,
+    }
 
 @app.get("/")
 def root():
