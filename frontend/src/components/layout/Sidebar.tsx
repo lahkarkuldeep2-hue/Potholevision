@@ -143,7 +143,7 @@ export default function Sidebar() {
 
           <div className="min-w-0">
             <p className="truncate text-[15px] font-semibold text-white">
-              Arjun Kumar
+              System Administrator
             </p>
 
             <p className="text-[12px] text-[#7893ad]">
