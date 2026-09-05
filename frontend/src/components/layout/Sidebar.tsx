@@ -101,7 +101,7 @@ export default function Sidebar({
     <>
       {/* Mobile overlay */}
       <div
-        className={`fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 lg:hidden ${
+        className={`fixed inset-0 z-[9998] bg-black/50 transition-opacity duration-300 lg:hidden ${
           mobileOpen
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0"
@@ -111,7 +111,7 @@ export default function Sidebar({
       />
 
       <aside
-        className={`fixed left-0 top-0 z-50 flex h-screen w-[300px] flex-col border-r border-[#1d344d] bg-[#0d1b2a] transition-transform duration-300 ease-in-out ${
+        className={`fixed left-0 top-0 z-[9999] flex h-screen w-[300px] flex-col border-r border-[#1d344d] bg-[#0d1b2a] transition-transform duration-300 ease-in-out ${
           mobileOpen
             ? "translate-x-0"
             : "-translate-x-full lg:translate-x-0"

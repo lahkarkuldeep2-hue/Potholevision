@@ -94,43 +94,45 @@ function StatCard({
   live?: boolean;
 }) {
   return (
-    <div className="group rounded-2xl border border-[#cbd5df] bg-[#f7f9fb] p-5 shadow-[0_4px_18px_rgba(30,48,68,0.06)] transition duration-200 hover:-translate-y-0.5 hover:border-[#aebdcd] hover:shadow-[0_10px_28px_rgba(30,48,68,0.10)]">
-      <div className="flex items-start justify-between">
+    <div className="group min-w-0 rounded-2xl border border-[#cbd5df] bg-[#f7f9fb] p-3 shadow-[0_4px_18px_rgba(30,48,68,0.06)] transition duration-200 hover:-translate-y-0.5 hover:border-[#aebdcd] hover:shadow-[0_10px_28px_rgba(30,48,68,0.10)] sm:p-4 md:p-5">
+      <div className="flex items-start justify-between gap-2">
         <div
-          className={`flex h-11 w-11 items-center justify-center rounded-xl ${iconClass}`}
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${iconClass} sm:h-10 sm:w-10 md:h-11 md:w-11`}
         >
           {icon}
         </div>
 
         <Activity
-          size={19}
-          className="text-[#aab9c8] transition group-hover:text-[#5c7fa8]"
+          size={16}
+          className="shrink-0 text-[#aab9c8] transition group-hover:text-[#5c7fa8] sm:size-[18px]"
         />
       </div>
 
-      <p className="mt-4 text-sm font-medium text-[#62758a]">{title}</p>
+      <p className="mt-2 truncate text-[11px] font-medium text-[#62758a] sm:mt-3 sm:text-sm md:mt-4">
+        {title}
+      </p>
 
-      <div className="mt-1 flex items-end justify-between">
-        <h3 className="text-[27px] font-bold tracking-tight text-[#142b46]">
+      <div className="mt-1 flex min-w-0 items-end justify-between gap-1.5">
+        <h3 className="min-w-0 truncate text-[22px] font-bold tracking-tight text-[#142b46] sm:text-[25px] md:text-[27px]">
           {value}
         </h3>
 
         <span
-          className={`mb-1 flex items-center gap-0.5 text-xs font-semibold ${
+          className={`mb-0.5 flex shrink-0 items-center gap-0.5 text-[9px] font-semibold sm:text-[11px] md:text-xs ${
             positive ? "text-emerald-600" : "text-red-500"
           }`}
         >
           {positive ? (
-            <ArrowUpRight size={14} />
+            <ArrowUpRight size={11} />
           ) : (
-            <ArrowDownRight size={14} />
+            <ArrowDownRight size={11} />
           )}
 
           {live ? "Live" : change}
         </span>
       </div>
 
-      <p className="mt-1 text-[11px] text-[#8797a8]">
+      <p className="mt-0.5 truncate text-[9px] text-[#8797a8] sm:mt-1 sm:text-[11px]">
         {live ? "live from database" : "from last week"}
       </p>
     </div>
@@ -688,7 +690,7 @@ export default function Dashboard() {
         )}
 
         {/* Stats */}
-        <div className="relative grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="relative grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-5">
           <StatCard
             title="Total Potholes"
             value={loading ? "..." : String(totalPotholes)}

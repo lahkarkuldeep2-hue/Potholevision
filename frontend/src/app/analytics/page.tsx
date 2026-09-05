@@ -35,7 +35,7 @@ import {
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
 
-const API_BASE = "https://potholevision.onrender.com";
+const API_BASE = "http://127.0.0.1:8000";
 
 type Pothole = {
   id: number;
@@ -110,14 +110,6 @@ function formatNumber(value: number): string {
 function formatPercent(value: number): string {
   if (!Number.isFinite(value)) return "0.0%";
   return `${value.toFixed(1)}%`;
-}
-
-function formatConfidence(value: number): string {
-  if (!Number.isFinite(value)) return "0.0%";
-
-  const percentage = value <= 1 ? value * 100 : value;
-
-  return `${percentage.toFixed(1)}%`;
 }
 
 function formatDate(value: string | null | undefined): string {
@@ -463,9 +455,9 @@ export default function AnalyticsPage() {
     );
   }).length;
 
- const filteredConfidenceValues = filteredPotholes.map((p) =>
-  safeNumber(p.confidence)
-);
+  const filteredConfidenceValues = filteredPotholes
+    .map((p) => safeNumber(p.confidence))
+    .filter((value) => value > 0);
 
   const averageConfidence =
     filteredConfidenceValues.length > 0
@@ -651,7 +643,7 @@ export default function AnalyticsPage() {
       `In Progress: ${inProgressCount}`,
       `Resolved: ${resolvedCount}`,
       `Resolution Rate: ${resolutionRate.toFixed(1)}%`,
-      `Average AI Confidence: ${formatConfidence(averageConfidence)}`,
+      `Average AI Confidence: ${averageConfidence.toFixed(1)}%`,
       `GPS Coverage: ${gpsCoverage.toFixed(1)}%`,
       `GPS Locations: ${gpsCount}`,
       `Completed Inspections: ${completedInspections}`,
@@ -844,16 +836,16 @@ export default function AnalyticsPage() {
         {/* =====================================================
             KPI CARDS
         ====================================================== */}
-        <section className="mb-7 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="mb-7 grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-4">
           {/* TOTAL */}
-          <div className="rounded-2xl border border-[#cbd7e3] bg-white p-6 shadow-[0_4px_14px_rgba(20,48,80,0.06)]">
+          <div className="rounded-2xl border border-[#cbd7e3] bg-white p-3 shadow-[0_4px_14px_rgba(20,48,80,0.06)] sm:p-6">
             <div className="flex items-start justify-between">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#eaf2fa] text-[#3d73a6]">
-                <AlertTriangle size={21} />
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#eaf2fa] text-[#3d73a6]">
+                <AlertTriangle size={18} />
               </div>
 
               <span
-                className={`flex items-center gap-1 text-sm font-semibold ${
+                className={`flex items-center gap-1 text-[10px] font-semibold sm:text-sm ${
                   activePeriodComparison >= 0
                     ? "text-emerald-600"
                     : "text-red-500"
@@ -869,95 +861,95 @@ export default function AnalyticsPage() {
               </span>
             </div>
 
-            <p className="mt-5 text-sm text-[#66809d]">
+            <p className="mt-3 text-[11px] text-[#66809d] sm:mt-5 sm:text-sm">
               Total Potholes
             </p>
 
-            <h2 className="mt-1 text-[31px] font-bold text-[#123052]">
+            <h2 className="mt-1 text-[22px] font-bold text-[#123052] sm:text-[31px]">
               {loading ? "—" : formatNumber(totalPotholes)}
             </h2>
 
-            <p className="mt-1 text-sm text-[#8a9bad]">
+            <p className="mt-1 text-[10px] text-[#8a9bad] sm:text-sm">
               Real database records
             </p>
           </div>
 
           {/* CRITICAL */}
-          <div className="rounded-2xl border border-[#cbd7e3] bg-white p-6 shadow-[0_4px_14px_rgba(20,48,80,0.06)]">
+          <div className="rounded-2xl border border-[#cbd7e3] bg-white p-3 shadow-[0_4px_14px_rgba(20,48,80,0.06)] sm:p-6">
             <div className="flex items-start justify-between">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#fff0f0] text-red-500">
-                <AlertTriangle size={21} />
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#fff0f0] text-red-500">
+                <AlertTriangle size={18} />
               </div>
 
-              <span className="flex items-center gap-1 text-sm font-semibold text-red-500">
+              <span className="flex items-center gap-1 text-[10px] font-semibold text-red-500 sm:text-sm">
                 <Activity size={15} />
                 Live
               </span>
             </div>
 
-            <p className="mt-5 text-sm text-[#66809d]">
+            <p className="mt-3 text-[11px] text-[#66809d] sm:mt-5 sm:text-sm">
               Critical Issues
             </p>
 
-            <h2 className="mt-1 text-[31px] font-bold text-[#123052]">
+            <h2 className="mt-1 text-[22px] font-bold text-[#123052] sm:text-[31px]">
               {loading ? "—" : formatNumber(criticalCount)}
             </h2>
 
-            <p className="mt-1 text-sm text-red-500">
+            <p className="mt-1 text-[10px] text-red-500 sm:text-sm">
               Requires immediate attention
             </p>
           </div>
 
           {/* RESOLVED */}
-          <div className="rounded-2xl border border-[#cbd7e3] bg-white p-6 shadow-[0_4px_14px_rgba(20,48,80,0.06)]">
+          <div className="rounded-2xl border border-[#cbd7e3] bg-white p-3 shadow-[0_4px_14px_rgba(20,48,80,0.06)] sm:p-6">
             <div className="flex items-start justify-between">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#eef7f3] text-emerald-600">
-                <CheckCircle2 size={21} />
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#eef7f3] text-emerald-600">
+                <CheckCircle2 size={18} />
               </div>
 
-              <span className="flex items-center gap-1 text-sm font-semibold text-emerald-600">
+              <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 sm:text-sm">
                 <TrendingUp size={15} />
                 Live
               </span>
             </div>
 
-            <p className="mt-5 text-sm text-[#66809d]">
+            <p className="mt-3 text-[11px] text-[#66809d] sm:mt-5 sm:text-sm">
               Resolved
             </p>
 
-            <h2 className="mt-1 text-[31px] font-bold text-[#123052]">
+            <h2 className="mt-1 text-[22px] font-bold text-[#123052] sm:text-[31px]">
               {loading ? "—" : formatNumber(resolvedCount)}
             </h2>
 
-            <p className="mt-1 text-sm text-emerald-600">
+            <p className="mt-1 text-[10px] text-emerald-600 sm:text-sm">
               {formatPercent(resolutionRate)} resolution rate
             </p>
           </div>
 
           {/* AI CONFIDENCE */}
-          <div className="rounded-2xl border border-[#cbd7e3] bg-white p-6 shadow-[0_4px_14px_rgba(20,48,80,0.06)]">
+          <div className="rounded-2xl border border-[#cbd7e3] bg-white p-3 shadow-[0_4px_14px_rgba(20,48,80,0.06)] sm:p-6">
             <div className="flex items-start justify-between">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#edf4fb] text-[#3d73a6]">
-                <BarChart3 size={21} />
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#edf4fb] text-[#3d73a6]">
+                <BarChart3 size={18} />
               </div>
 
-              <span className="flex items-center gap-1 text-sm font-semibold text-[#326c9f]">
+              <span className="flex items-center gap-1 text-[10px] font-semibold text-[#326c9f] sm:text-sm">
                 <Activity size={15} />
                 AI
               </span>
             </div>
 
-            <p className="mt-5 text-sm text-[#66809d]">
+            <p className="mt-3 text-[11px] text-[#66809d] sm:mt-5 sm:text-sm">
               Avg. AI Confidence
             </p>
 
-            <h2 className="mt-1 text-[31px] font-bold text-[#123052]">
+            <h2 className="mt-1 text-[22px] font-bold text-[#123052] sm:text-[31px]">
               {loading
                 ? "—"
-                : formatConfidence(averageConfidence)}
+                : formatPercent(averageConfidence)}
             </h2>
 
-            <p className="mt-1 text-sm text-[#8a9bad]">
+            <p className="mt-1 text-[10px] text-[#8a9bad] sm:text-sm">
               Based on detected potholes
             </p>
           </div>

@@ -390,83 +390,83 @@ export default function PotholesPage() {
           </div>
 
           {/* Summary Cards */}
-          <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
-            <div className="rounded-2xl border border-[#cbd8e4] bg-[#f8fafc] p-4 shadow-[0_6px_20px_rgba(16,42,67,0.06)] sm:p-5">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-[#607d99]">
+          <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
+            <div className="group min-w-0 rounded-2xl border border-[#cbd8e4] bg-[#f8fafc] p-3 shadow-[0_6px_20px_rgba(16,42,67,0.06)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(16,42,67,0.10)] sm:p-5">
+              <div className="flex items-start justify-between gap-2">
+                <p className="min-w-0 truncate text-[11px] text-[#607d99] sm:text-sm">
                   Total Potholes
                 </p>
 
-                <div className="rounded-lg bg-[#e8f0f7] p-2 text-[#376b9d]">
-                  <AlertTriangle size={18} />
+                <div className="shrink-0 rounded-lg bg-[#e8f0f7] p-1.5 text-[#376b9d] sm:p-2">
+                  <AlertTriangle size={16} />
                 </div>
               </div>
 
-              <p className="mt-3 text-3xl font-bold text-[#102a43]">
+              <p className="mt-2 text-[23px] font-bold tracking-tight text-[#102a43] sm:mt-3 sm:text-3xl">
                 {totalCount.toLocaleString()}
               </p>
 
-              <p className="mt-1 text-xs text-[#7890a6]">
+              <p className="mt-0.5 truncate text-[9px] text-[#7890a6] sm:mt-1 sm:text-xs">
                 Detected locations
               </p>
             </div>
 
-            <div className="rounded-2xl border border-[#cbd8e4] bg-[#f8fafc] p-4 shadow-[0_6px_20px_rgba(16,42,67,0.06)] sm:p-5">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-[#607d99]">
+            <div className="group min-w-0 rounded-2xl border border-[#cbd8e4] bg-[#f8fafc] p-3 shadow-[0_6px_20px_rgba(16,42,67,0.06)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(16,42,67,0.10)] sm:p-5">
+              <div className="flex items-start justify-between gap-2">
+                <p className="min-w-0 truncate text-[11px] text-[#607d99] sm:text-sm">
                   Critical
                 </p>
 
-                <div className="rounded-lg bg-red-50 p-2 text-red-500">
-                  <AlertTriangle size={18} />
+                <div className="shrink-0 rounded-lg bg-red-50 p-1.5 text-red-500 sm:p-2">
+                  <AlertTriangle size={16} />
                 </div>
               </div>
 
-              <p className="mt-3 text-3xl font-bold text-[#102a43]">
+              <p className="mt-2 text-[23px] font-bold tracking-tight text-[#102a43] sm:mt-3 sm:text-3xl">
                 {criticalCount}
               </p>
 
-              <p className="mt-1 text-xs text-red-500">
+              <p className="mt-0.5 truncate text-[9px] text-red-500 sm:mt-1 sm:text-xs">
                 Requires immediate attention
               </p>
             </div>
 
-            <div className="rounded-2xl border border-[#cbd8e4] bg-[#f8fafc] p-4 shadow-[0_6px_20px_rgba(16,42,67,0.06)] sm:p-5">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-[#607d99]">
+            <div className="group min-w-0 rounded-2xl border border-[#cbd8e4] bg-[#f8fafc] p-3 shadow-[0_6px_20px_rgba(16,42,67,0.06)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(16,42,67,0.10)] sm:p-5">
+              <div className="flex items-start justify-between gap-2">
+                <p className="min-w-0 truncate text-[11px] text-[#607d99] sm:text-sm">
                   In Progress
                 </p>
 
-                <div className="rounded-lg bg-amber-50 p-2 text-amber-500">
-                  <Clock3 size={18} />
+                <div className="shrink-0 rounded-lg bg-amber-50 p-1.5 text-amber-500 sm:p-2">
+                  <Clock3 size={16} />
                 </div>
               </div>
 
-              <p className="mt-3 text-3xl font-bold text-[#102a43]">
+              <p className="mt-2 text-[23px] font-bold tracking-tight text-[#102a43] sm:mt-3 sm:text-3xl">
                 {inProgressCount}
               </p>
 
-              <p className="mt-1 text-xs text-[#7890a6]">
+              <p className="mt-0.5 truncate text-[9px] text-[#7890a6] sm:mt-1 sm:text-xs">
                 Currently being repaired
               </p>
             </div>
 
-            <div className="rounded-2xl border border-[#cbd8e4] bg-[#f8fafc] p-4 shadow-[0_6px_20px_rgba(16,42,67,0.06)] sm:p-5">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-[#607d99]">
+            <div className="group min-w-0 rounded-2xl border border-[#cbd8e4] bg-[#f8fafc] p-3 shadow-[0_6px_20px_rgba(16,42,67,0.06)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(16,42,67,0.10)] sm:p-5">
+              <div className="flex items-start justify-between gap-2">
+                <p className="min-w-0 truncate text-[11px] text-[#607d99] sm:text-sm">
                   Resolved
                 </p>
 
-                <div className="rounded-lg bg-emerald-50 p-2 text-emerald-500">
-                  <CheckCircle2 size={18} />
+                <div className="shrink-0 rounded-lg bg-emerald-50 p-1.5 text-emerald-500 sm:p-2">
+                  <CheckCircle2 size={16} />
                 </div>
               </div>
 
-              <p className="mt-3 text-3xl font-bold text-[#102a43]">
+              <p className="mt-2 text-[23px] font-bold tracking-tight text-[#102a43] sm:mt-3 sm:text-3xl">
                 {resolvedCount}
               </p>
 
-              <p className="mt-1 text-xs text-emerald-600">
+              <p className="mt-0.5 truncate text-[9px] text-emerald-600 sm:mt-1 sm:text-xs">
                 Successfully repaired
               </p>
             </div>
