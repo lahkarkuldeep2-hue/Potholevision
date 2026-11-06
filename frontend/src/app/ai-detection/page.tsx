@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import {
   AlertTriangle,
@@ -571,9 +571,9 @@ export default function AIDetectionPage() {
 
                 {detecting && (
                   <div className="flex min-h-[430px] min-w-0 flex-col items-center justify-center rounded-2xl border border-white/[0.10] bg-gradient-to-br from-[#222831] to-[#171C22] px-5 text-center">
-                    <Loader2
-                      size={44}
-                      className="animate-spin text-[#C8A96B]"
+                    <LoadingSpinner
+                      label="AI ANALYZING ROAD DAMAGE"
+                      size={23}
                     />
 
                     <h3 className="mt-5 text-base font-bold text-[#E8D7B5]">
