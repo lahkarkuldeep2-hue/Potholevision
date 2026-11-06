@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { LoadingSpinner } from "@/components/ui/LoadingStates";
 
 type Severity = "Critical" | "High" | "Medium" | "Low";
 type Status = "Open" | "In Progress" | "Resolved";
@@ -38,7 +39,7 @@ const initialPotholes: Pothole[] = [
     road: "Barakhamba Road",
     severity: "Critical",
     status: "Open",
-    detected: "May 26, 2024 • 10:32 AM",
+    detected: "May 26, 2024 â€¢ 10:32 AM",
     confidence: "98.4%",
   },
   {
@@ -47,7 +48,7 @@ const initialPotholes: Pothole[] = [
     road: "Ring Road",
     severity: "High",
     status: "In Progress",
-    detected: "May 26, 2024 • 09:15 AM",
+    detected: "May 26, 2024 â€¢ 09:15 AM",
     confidence: "96.8%",
   },
   {
@@ -56,7 +57,7 @@ const initialPotholes: Pothole[] = [
     road: "Rajpath Road",
     severity: "High",
     status: "Open",
-    detected: "May 26, 2024 • 08:42 AM",
+    detected: "May 26, 2024 â€¢ 08:42 AM",
     confidence: "95.2%",
   },
   {
@@ -65,7 +66,7 @@ const initialPotholes: Pothole[] = [
     road: "Khan Market Road",
     severity: "Medium",
     status: "Resolved",
-    detected: "May 25, 2024 • 04:20 PM",
+    detected: "May 25, 2024 â€¢ 04:20 PM",
     confidence: "93.7%",
   },
   {
@@ -74,7 +75,7 @@ const initialPotholes: Pothole[] = [
     road: "Lodhi Road",
     severity: "Medium",
     status: "In Progress",
-    detected: "May 25, 2024 • 02:18 PM",
+    detected: "May 25, 2024 â€¢ 02:18 PM",
     confidence: "91.6%",
   },
   {
@@ -83,7 +84,7 @@ const initialPotholes: Pothole[] = [
     road: "Mathura Road",
     severity: "Low",
     status: "Resolved",
-    detected: "May 25, 2024 • 11:05 AM",
+    detected: "May 25, 2024 â€¢ 11:05 AM",
     confidence: "89.3%",
   },
   {
@@ -92,22 +93,22 @@ const initialPotholes: Pothole[] = [
     road: "Press Enclave Road",
     severity: "Low",
     status: "Open",
-    detected: "May 24, 2024 • 05:46 PM",
+    detected: "May 24, 2024 â€¢ 05:46 PM",
     confidence: "87.9%",
   },
 ];
 
 const severityStyles: Record<Severity, string> = {
-  Critical: "border-red-200 bg-red-50 text-red-600",
-  High: "border-orange-200 bg-orange-50 text-orange-600",
-  Medium: "border-blue-200 bg-blue-50 text-blue-600",
-  Low: "border-slate-200 bg-slate-50 text-slate-600",
+  Critical: "border-[#A33A3A]/50 bg-[#A33A3A]/15 text-[#E58A83]",
+  High: "border-[#C18B52]/40 bg-[#C18B52]/10 text-[#D9AD79]",
+  Medium: "border-[#71879A]/40 bg-[#71879A]/10 text-[#A9BAC8]",
+  Low: "border-[#8B969E]/30 bg-[#8B969E]/10 text-[#AEB6BD]",
 };
 
 const statusStyles: Record<Status, string> = {
-  Open: "border-red-200 bg-red-50 text-red-600",
-  "In Progress": "border-amber-200 bg-amber-50 text-amber-600",
-  Resolved: "border-emerald-200 bg-emerald-50 text-emerald-600",
+  Open: "border-[#A33A3A]/50 bg-[#A33A3A]/15 text-[#E58A83]",
+  "In Progress": "border-[#C8A96B]/40 bg-[#C8A96B]/10 text-[#DCC18D]",
+  Resolved: "border-[#4B9B78]/40 bg-[#4B9B78]/10 text-[#82C5A2]",
 };
 
 const API_URL =
@@ -357,23 +358,28 @@ export default function PotholesPage() {
 
   return (
     <DashboardLayout>
+      {loading && (
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-[#101317]/95 px-4 backdrop-blur-md">
+          <LoadingSpinner label="LOADING ROAD REGISTRY" />
+        </div>
+      )}
       <div
-        className="min-h-screen min-w-0 bg-[#dfe5eb] py-3 sm:py-5 lg:py-8"
+        className="min-h-screen min-w-0 bg-[#101317] py-3 sm:py-5 lg:py-8"
         onClick={() => setMenuPotholeId(null)}
       >
         <div className="mx-auto w-full max-w-[1600px]">
           {/* Header */}
           <div className="mb-5 flex flex-col gap-4 sm:mb-6 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#55779d] sm:text-xs">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#C8A96B] sm:text-xs">
                 Infrastructure Management
               </p>
 
-              <h1 className="mt-1.5 text-2xl font-bold text-[#102a43] sm:mt-2 sm:text-3xl">
+              <h1 className="mt-1.5 text-2xl font-bold text-[#F4E9D0] sm:mt-2 sm:text-3xl">
                 Pothole Management
               </h1>
 
-              <p className="mt-1 max-w-2xl text-xs leading-5 text-[#6b8299] sm:text-sm">
+              <p className="mt-1 max-w-2xl text-xs leading-5 text-[#A1AAB2] sm:text-sm">
                 Monitor, review and manage detected road damage
                 across the city.
               </p>
@@ -382,7 +388,7 @@ export default function PotholesPage() {
             <button
               type="button"
               onClick={() => setShowAddModal(true)}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#285b89] px-5 py-3 text-sm font-semibold text-white shadow-[0_6px_18px_rgba(40,91,137,0.22)] transition hover:bg-[#214e78] sm:w-auto"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#C8A96B] px-5 py-3 text-sm font-semibold text-white shadow-[0_6px_18px_rgba(40,91,137,0.22)] transition hover:bg-[#B99558] sm:w-auto"
             >
               <Plus size={18} />
               Add Pothole
@@ -391,29 +397,29 @@ export default function PotholesPage() {
 
           {/* Summary Cards */}
           <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
-            <div className="group min-w-0 rounded-2xl border border-[#cbd8e4] bg-[#f8fafc] p-3 shadow-[0_6px_20px_rgba(16,42,67,0.06)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(16,42,67,0.10)] sm:p-5">
+            <div className="group min-w-0 rounded-2xl border border-[#3A424C] bg-[#222831] p-3 shadow-[0_6px_20px_rgba(16,42,67,0.06)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(16,42,67,0.10)] sm:p-5">
               <div className="flex items-start justify-between gap-2">
-                <p className="min-w-0 truncate text-[11px] text-[#607d99] sm:text-sm">
+                <p className="min-w-0 truncate text-[11px] text-[#A1AAB2] sm:text-sm">
                   Total Potholes
                 </p>
 
-                <div className="shrink-0 rounded-lg bg-[#e8f0f7] p-1.5 text-[#376b9d] sm:p-2">
+                <div className="shrink-0 rounded-lg bg-[#343B43] p-1.5 text-[#C8A96B] sm:p-2">
                   <AlertTriangle size={16} />
                 </div>
               </div>
 
-              <p className="mt-2 text-[23px] font-bold tracking-tight text-[#102a43] sm:mt-3 sm:text-3xl">
+              <p className="mt-2 text-[23px] font-bold tracking-tight text-[#F4E9D0] sm:mt-3 sm:text-3xl">
                 {totalCount.toLocaleString()}
               </p>
 
-              <p className="mt-0.5 truncate text-[9px] text-[#7890a6] sm:mt-1 sm:text-xs">
+              <p className="mt-0.5 truncate text-[9px] text-[#8B969E] sm:mt-1 sm:text-xs">
                 Detected locations
               </p>
             </div>
 
-            <div className="group min-w-0 rounded-2xl border border-[#cbd8e4] bg-[#f8fafc] p-3 shadow-[0_6px_20px_rgba(16,42,67,0.06)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(16,42,67,0.10)] sm:p-5">
+            <div className="group min-w-0 rounded-2xl border border-[#3A424C] bg-[#222831] p-3 shadow-[0_6px_20px_rgba(16,42,67,0.06)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(16,42,67,0.10)] sm:p-5">
               <div className="flex items-start justify-between gap-2">
-                <p className="min-w-0 truncate text-[11px] text-[#607d99] sm:text-sm">
+                <p className="min-w-0 truncate text-[11px] text-[#A1AAB2] sm:text-sm">
                   Critical
                 </p>
 
@@ -422,7 +428,7 @@ export default function PotholesPage() {
                 </div>
               </div>
 
-              <p className="mt-2 text-[23px] font-bold tracking-tight text-[#102a43] sm:mt-3 sm:text-3xl">
+              <p className="mt-2 text-[23px] font-bold tracking-tight text-[#F4E9D0] sm:mt-3 sm:text-3xl">
                 {criticalCount}
               </p>
 
@@ -431,9 +437,9 @@ export default function PotholesPage() {
               </p>
             </div>
 
-            <div className="group min-w-0 rounded-2xl border border-[#cbd8e4] bg-[#f8fafc] p-3 shadow-[0_6px_20px_rgba(16,42,67,0.06)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(16,42,67,0.10)] sm:p-5">
+            <div className="group min-w-0 rounded-2xl border border-[#3A424C] bg-[#222831] p-3 shadow-[0_6px_20px_rgba(16,42,67,0.06)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(16,42,67,0.10)] sm:p-5">
               <div className="flex items-start justify-between gap-2">
-                <p className="min-w-0 truncate text-[11px] text-[#607d99] sm:text-sm">
+                <p className="min-w-0 truncate text-[11px] text-[#A1AAB2] sm:text-sm">
                   In Progress
                 </p>
 
@@ -442,18 +448,18 @@ export default function PotholesPage() {
                 </div>
               </div>
 
-              <p className="mt-2 text-[23px] font-bold tracking-tight text-[#102a43] sm:mt-3 sm:text-3xl">
+              <p className="mt-2 text-[23px] font-bold tracking-tight text-[#F4E9D0] sm:mt-3 sm:text-3xl">
                 {inProgressCount}
               </p>
 
-              <p className="mt-0.5 truncate text-[9px] text-[#7890a6] sm:mt-1 sm:text-xs">
+              <p className="mt-0.5 truncate text-[9px] text-[#8B969E] sm:mt-1 sm:text-xs">
                 Currently being repaired
               </p>
             </div>
 
-            <div className="group min-w-0 rounded-2xl border border-[#cbd8e4] bg-[#f8fafc] p-3 shadow-[0_6px_20px_rgba(16,42,67,0.06)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(16,42,67,0.10)] sm:p-5">
+            <div className="group min-w-0 rounded-2xl border border-[#3A424C] bg-[#222831] p-3 shadow-[0_6px_20px_rgba(16,42,67,0.06)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(16,42,67,0.10)] sm:p-5">
               <div className="flex items-start justify-between gap-2">
-                <p className="min-w-0 truncate text-[11px] text-[#607d99] sm:text-sm">
+                <p className="min-w-0 truncate text-[11px] text-[#A1AAB2] sm:text-sm">
                   Resolved
                 </p>
 
@@ -462,7 +468,7 @@ export default function PotholesPage() {
                 </div>
               </div>
 
-              <p className="mt-2 text-[23px] font-bold tracking-tight text-[#102a43] sm:mt-3 sm:text-3xl">
+              <p className="mt-2 text-[23px] font-bold tracking-tight text-[#F4E9D0] sm:mt-3 sm:text-3xl">
                 {resolvedCount}
               </p>
 
@@ -473,15 +479,15 @@ export default function PotholesPage() {
           </div>
 
           {/* Main Table */}
-          <section className="overflow-hidden rounded-2xl border border-[#cbd8e4] bg-[#f8fafc] shadow-[0_8px_30px_rgba(16,42,67,0.07)]">
+          <section className="overflow-hidden rounded-2xl border border-[#3A424C] bg-[#222831] shadow-[0_8px_30px_rgba(16,42,67,0.07)]">
             {/* Toolbar */}
-            <div className="flex flex-col gap-4 border-b border-[#d7e0e8] px-4 py-4 sm:px-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-4 border-b border-[#343B43] px-4 py-4 sm:px-5 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <h2 className="text-base font-semibold text-[#102a43]">
+                <h2 className="text-base font-semibold text-[#F4E9D0]">
                   Detected Potholes
                 </h2>
 
-                <p className="mt-1 text-xs text-[#7890a6]">
+                <p className="mt-1 text-xs text-[#8B969E]">
                   Review detected road damage and current repair
                   status.
                 </p>
@@ -492,7 +498,7 @@ export default function PotholesPage() {
                 <div className="relative w-full sm:min-w-[240px] sm:flex-1 lg:w-56 lg:flex-none">
                   <Search
                     size={17}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#7890a6]"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B969E]"
                   />
 
                   <input
@@ -501,7 +507,7 @@ export default function PotholesPage() {
                       handleSearchChange(event.target.value)
                     }
                     placeholder="Search potholes..."
-                    className="h-10 w-full rounded-lg border border-[#cbd8e4] bg-white pl-9 pr-3 text-sm text-[#102a43] outline-none transition focus:border-[#5b84aa] focus:ring-2 focus:ring-[#5b84aa]/10"
+                    className="h-10 w-full rounded-lg border border-[#3A424C] bg-[#1A2026] pl-9 pr-3 text-sm text-[#F4E9D0] outline-none transition focus:border-[#C8A96B] focus:ring-2 focus:ring-[#C8A96B]/20"
                   />
                 </div>
 
@@ -509,7 +515,7 @@ export default function PotholesPage() {
                 <div className="relative w-full sm:w-auto">
                   <Filter
                     size={16}
-                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#607d99]"
+                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#A1AAB2]"
                   />
 
                   <select
@@ -521,7 +527,7 @@ export default function PotholesPage() {
                           | Severity
                       )
                     }
-                    className="h-10 w-full appearance-none rounded-lg border border-[#cbd8e4] bg-white pl-9 pr-8 text-sm text-[#315a82] outline-none focus:border-[#5b84aa] sm:w-auto"
+                    className="h-10 w-full appearance-none rounded-lg border border-[#3A424C] bg-[#1A2026] pl-9 pr-8 text-sm text-[#D8BD8A] outline-none focus:border-[#C8A96B] sm:w-auto"
                   >
                     <option value="All">All Severity</option>
                     <option value="Critical">Critical</option>
@@ -535,7 +541,7 @@ export default function PotholesPage() {
 
             {/* Loading / Error */}
             {loading && (
-              <div className="border-b border-[#d7e0e8] px-4 py-3 text-xs text-[#607d99] sm:px-5">
+              <div className="border-b border-[#343B43] px-4 py-3 text-xs text-[#A1AAB2] sm:px-5">
                 Loading live pothole data...
               </div>
             )}
@@ -550,32 +556,32 @@ export default function PotholesPage() {
             <div className="overflow-x-auto">
               <table className="w-full min-w-[900px] border-collapse">
                 <thead>
-                  <tr className="border-b border-[#d7e0e8] bg-[#f1f5f8] text-left">
-                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-[#607d99]">
+                  <tr className="border-b border-[#343B43] bg-[#1A2026] text-left">
+                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-[#A1AAB2]">
                       Pothole ID
                     </th>
 
-                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-[#607d99]">
+                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-[#A1AAB2]">
                       Location
                     </th>
 
-                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-[#607d99]">
+                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-[#A1AAB2]">
                       Severity
                     </th>
 
-                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-[#607d99]">
+                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-[#A1AAB2]">
                       Status
                     </th>
 
-                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-[#607d99]">
+                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-[#A1AAB2]">
                       AI Confidence
                     </th>
 
-                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-[#607d99]">
+                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-[#A1AAB2]">
                       Detected
                     </th>
 
-                    <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-[#607d99]">
+                    <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-[#A1AAB2]">
                       Action
                     </th>
                   </tr>
@@ -585,26 +591,26 @@ export default function PotholesPage() {
                   {paginatedPotholes.map((pothole) => (
                     <tr
                       key={pothole.id}
-                      className="border-b border-[#e1e8ee] transition hover:bg-[#f4f7fa]"
+                      className="border-b border-[#343B43] transition hover:bg-[#2A3038]"
                     >
                       <td className="px-5 py-4">
-                        <span className="font-mono text-xs font-semibold text-[#315a82]">
+                        <span className="font-mono text-xs font-semibold text-[#D8BD8A]">
                           {pothole.id}
                         </span>
                       </td>
 
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="rounded-lg bg-[#e8f0f7] p-2 text-[#4c78a0]">
+                          <div className="rounded-lg bg-[#343B43] p-2 text-[#C8A96B]">
                             <MapPin size={17} />
                           </div>
 
                           <div>
-                            <p className="max-w-[260px] truncate text-sm font-semibold text-[#102a43]">
+                            <p className="max-w-[260px] truncate text-sm font-semibold text-[#F4E9D0]">
                               {pothole.location}
                             </p>
 
-                            <p className="mt-0.5 max-w-[260px] truncate text-xs text-[#7890a6]">
+                            <p className="mt-0.5 max-w-[260px] truncate text-xs text-[#8B969E]">
                               {pothole.road}
                             </p>
                           </div>
@@ -613,7 +619,7 @@ export default function PotholesPage() {
 
                       <td className="px-5 py-4">
                         <span
-                          className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${severityStyles[pothole.severity]}`}
+                          className={`inline-flex min-h-[27px] items-center justify-center whitespace-nowrap rounded-md border px-2.5 py-1 text-[11px] font-semibold leading-none tracking-[0.01em] ${severityStyles[pothole.severity]}`}
                         >
                           {pothole.severity}
                         </span>
@@ -621,20 +627,20 @@ export default function PotholesPage() {
 
                       <td className="px-5 py-4">
                         <span
-                          className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${statusStyles[pothole.status]}`}
+                          className={`inline-flex min-h-[27px] items-center justify-center whitespace-nowrap rounded-md border px-2.5 py-1 text-[11px] font-semibold leading-none tracking-[0.01em] ${statusStyles[pothole.status]}`}
                         >
                           {pothole.status}
                         </span>
                       </td>
 
                       <td className="px-5 py-4">
-                        <span className="text-sm font-semibold text-[#315a82]">
+                        <span className="text-sm font-semibold text-[#D8BD8A]">
                           {pothole.confidence}
                         </span>
                       </td>
 
                       <td className="px-5 py-4">
-                        <span className="text-xs text-[#7890a6]">
+                        <span className="text-xs text-[#8B969E]">
                           {pothole.detected}
                         </span>
                       </td>
@@ -649,7 +655,7 @@ export default function PotholesPage() {
                               setSelectedPothole(pothole);
                               setMenuPotholeId(null);
                             }}
-                            className="flex items-center gap-1.5 rounded-lg border border-[#cbd8e4] bg-white px-3 py-2 text-xs font-semibold text-[#315a82] shadow-sm transition hover:bg-[#eef3f7]"
+                            className="flex items-center gap-1.5 rounded-lg border border-[#3A424C] bg-[#1A2026] px-3 py-2 text-xs font-semibold text-[#D8BD8A] shadow-sm transition hover:bg-[#303740]"
                           >
                             <Eye size={15} />
                             View
@@ -667,7 +673,7 @@ export default function PotholesPage() {
                                   : pothole.id
                               );
                             }}
-                            className="rounded-lg border border-[#cbd8e4] bg-white p-2 text-[#607d99] shadow-sm transition hover:bg-[#eef3f7]"
+                            className="rounded-lg border border-[#3A424C] bg-[#1A2026] p-2 text-[#A1AAB2] shadow-sm transition hover:bg-[#303740]"
                             aria-label="More actions"
                           >
                             <MoreHorizontal size={16} />
@@ -679,7 +685,7 @@ export default function PotholesPage() {
                               onClick={(event) =>
                                 event.stopPropagation()
                               }
-                              className="absolute right-0 top-11 z-30 w-44 overflow-hidden rounded-xl border border-[#cbd8e4] bg-white p-1.5 shadow-[0_12px_30px_rgba(16,42,67,0.16)]"
+                              className="absolute right-0 top-11 z-30 w-44 overflow-hidden rounded-xl border border-[#3A424C] bg-[#1A2026] p-1.5 shadow-[0_12px_30px_rgba(16,42,67,0.16)]"
                             >
                               {pothole.status !== "In Progress" &&
                                 pothole.status !== "Resolved" && (
@@ -691,7 +697,7 @@ export default function PotholesPage() {
                                         "In Progress"
                                       )
                                     }
-                                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-xs font-medium text-[#315a82] hover:bg-[#eef3f7]"
+                                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-xs font-medium text-[#D8BD8A] hover:bg-[#303740]"
                                   >
                                     <Wrench size={15} />
                                     Start Repair
@@ -740,11 +746,11 @@ export default function PotholesPage() {
                     size={32}
                   />
 
-                  <p className="mt-3 text-sm font-semibold text-[#315a82]">
+                  <p className="mt-3 text-sm font-semibold text-[#D8BD8A]">
                     No potholes found
                   </p>
 
-                  <p className="mt-1 text-xs text-[#7890a6]">
+                  <p className="mt-1 text-xs text-[#8B969E]">
                     Try changing your search or severity filter.
                   </p>
                 </div>
@@ -752,10 +758,10 @@ export default function PotholesPage() {
             </div>
 
             {/* Footer */}
-            <div className="flex flex-col gap-3 border-t border-[#d7e0e8] bg-[#f7f9fb] px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-              <p className="text-xs text-[#7890a6]">
+            <div className="flex flex-col gap-3 border-t border-[#343B43] bg-[#1A2026] px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+              <p className="text-xs text-[#8B969E]">
                 Showing{" "}
-                <span className="font-semibold text-[#315a82]">
+                <span className="font-semibold text-[#D8BD8A]">
                   {filteredPotholes.length}
                 </span>{" "}
                 potholes
@@ -770,7 +776,7 @@ export default function PotholesPage() {
                       Math.max(1, page - 1)
                     )
                   }
-                  className="rounded-lg border border-[#cbd8e4] bg-white px-3 py-1.5 text-xs font-medium text-[#315a82] transition hover:bg-[#eef3f7] disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-lg border border-[#3A424C] bg-[#1A2026] px-3 py-1.5 text-xs font-medium text-[#D8BD8A] transition hover:bg-[#303740] disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Previous
                 </button>
@@ -786,8 +792,8 @@ export default function PotholesPage() {
                       onClick={() => setCurrentPage(page)}
                       className={`min-w-8 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition ${
                         safeCurrentPage === page
-                          ? "bg-[#285b89] text-white"
-                          : "border border-[#cbd8e4] bg-white text-[#315a82] hover:bg-[#eef3f7]"
+                          ? "bg-[#C8A96B] text-white"
+                          : "border border-[#3A424C] bg-[#1A2026] text-[#D8BD8A] hover:bg-[#303740]"
                       }`}
                     >
                       {page}
@@ -803,7 +809,7 @@ export default function PotholesPage() {
                       Math.min(totalPages, page + 1)
                     )
                   }
-                  className="rounded-lg border border-[#cbd8e4] bg-white px-3 py-1.5 text-xs font-medium text-[#315a82] transition hover:bg-[#eef3f7] disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-lg border border-[#3A424C] bg-[#1A2026] px-3 py-1.5 text-xs font-medium text-[#D8BD8A] transition hover:bg-[#303740] disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Next
                 </button>
@@ -816,24 +822,24 @@ export default function PotholesPage() {
       {/* Add Pothole Modal */}
       {showAddModal && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-[#102a43]/40 p-3 backdrop-blur-[3px] sm:items-center sm:p-6"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-[#080A0D]/80 p-3 backdrop-blur-[3px] sm:items-center sm:p-6"
           onClick={() => setShowAddModal(false)}
         >
           <div
-            className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-2xl border border-[#cbd8e4] bg-[#f8fafc] shadow-[0_20px_60px_rgba(16,42,67,0.22)]"
+            className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-2xl border border-[#3A424C] bg-[#222831] shadow-[0_20px_60px_rgba(16,42,67,0.22)]"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex items-start justify-between border-b border-[#d7e0e8] px-5 py-4 sm:px-6 sm:py-5">
+            <div className="flex items-start justify-between border-b border-[#343B43] px-5 py-4 sm:px-6 sm:py-5">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#55779d] sm:text-xs">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#C8A96B] sm:text-xs">
                   Infrastructure Management
                 </p>
 
-                <h2 className="mt-1 text-xl font-bold text-[#102a43]">
+                <h2 className="mt-1 text-xl font-bold text-[#F4E9D0]">
                   Add Pothole
                 </h2>
 
-                <p className="mt-1 text-xs text-[#7890a6]">
+                <p className="mt-1 text-xs text-[#8B969E]">
                   Create a new pothole record.
                 </p>
               </div>
@@ -841,7 +847,7 @@ export default function PotholesPage() {
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
-                className="rounded-lg p-2 text-[#607d99] transition hover:bg-[#e9eff4]"
+                className="rounded-lg p-2 text-[#A1AAB2] transition hover:bg-[#303740]"
                 aria-label="Close"
               >
                 <X size={19} />
@@ -850,7 +856,7 @@ export default function PotholesPage() {
 
             <div className="space-y-4 px-5 py-5 sm:px-6 sm:py-6">
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-[#315a82]">
+                <label className="mb-1.5 block text-xs font-semibold text-[#D8BD8A]">
                   Location
                 </label>
 
@@ -860,12 +866,12 @@ export default function PotholesPage() {
                     setNewLocation(event.target.value)
                   }
                   placeholder="e.g. Nehru Place"
-                  className="h-11 w-full rounded-lg border border-[#cbd8e4] bg-white px-3 text-sm text-[#102a43] outline-none focus:border-[#5b84aa] focus:ring-2 focus:ring-[#5b84aa]/10"
+                  className="h-11 w-full rounded-lg border border-[#3A424C] bg-[#1A2026] px-3 text-sm text-[#F4E9D0] outline-none focus:border-[#C8A96B] focus:ring-2 focus:ring-[#C8A96B]/20"
                 />
               </div>
 
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-[#315a82]">
+                <label className="mb-1.5 block text-xs font-semibold text-[#D8BD8A]">
                   Road
                 </label>
 
@@ -875,12 +881,12 @@ export default function PotholesPage() {
                     setNewRoad(event.target.value)
                   }
                   placeholder="e.g. Outer Ring Road"
-                  className="h-11 w-full rounded-lg border border-[#cbd8e4] bg-white px-3 text-sm text-[#102a43] outline-none focus:border-[#5b84aa] focus:ring-2 focus:ring-[#5b84aa]/10"
+                  className="h-11 w-full rounded-lg border border-[#3A424C] bg-[#1A2026] px-3 text-sm text-[#F4E9D0] outline-none focus:border-[#C8A96B] focus:ring-2 focus:ring-[#C8A96B]/20"
                 />
               </div>
 
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-[#315a82]">
+                <label className="mb-1.5 block text-xs font-semibold text-[#D8BD8A]">
                   Severity
                 </label>
 
@@ -891,7 +897,7 @@ export default function PotholesPage() {
                       event.target.value as Severity
                     )
                   }
-                  className="h-11 w-full rounded-lg border border-[#cbd8e4] bg-white px-3 text-sm text-[#315a82] outline-none focus:border-[#5b84aa]"
+                  className="h-11 w-full rounded-lg border border-[#3A424C] bg-[#1A2026] px-3 text-sm text-[#D8BD8A] outline-none focus:border-[#C8A96B]"
                 >
                   <option value="Critical">Critical</option>
                   <option value="High">High</option>
@@ -901,11 +907,11 @@ export default function PotholesPage() {
               </div>
             </div>
 
-            <div className="flex flex-col-reverse gap-2 border-t border-[#d7e0e8] bg-[#f1f5f8] px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
+            <div className="flex flex-col-reverse gap-2 border-t border-[#343B43] bg-[#1A2026] px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
-                className="rounded-lg border border-[#cbd8e4] bg-white px-4 py-2.5 text-sm font-semibold text-[#315a82] transition hover:bg-[#eef3f7]"
+                className="rounded-lg border border-[#3A424C] bg-[#1A2026] px-4 py-2.5 text-sm font-semibold text-[#D8BD8A] transition hover:bg-[#303740]"
               >
                 Cancel
               </button>
@@ -916,7 +922,7 @@ export default function PotholesPage() {
                   !newLocation.trim() || !newRoad.trim()
                 }
                 onClick={handleAddPothole}
-                className="rounded-lg bg-[#285b89] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#214e78] disabled:cursor-not-allowed disabled:opacity-40"
+                className="rounded-lg bg-[#C8A96B] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#B99558] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Add Pothole
               </button>
@@ -928,20 +934,20 @@ export default function PotholesPage() {
       {/* Details Modal */}
       {selectedPothole && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-[#102a43]/40 p-3 backdrop-blur-[3px] sm:items-center sm:p-6"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-[#080A0D]/80 p-3 backdrop-blur-[3px] sm:items-center sm:p-6"
           onClick={() => setSelectedPothole(null)}
         >
           <div
-            className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-[#cbd8e4] bg-[#f8fafc] shadow-[0_20px_60px_rgba(16,42,67,0.22)]"
+            className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-[#3A424C] bg-[#222831] shadow-[0_20px_60px_rgba(16,42,67,0.22)]"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex items-start justify-between border-b border-[#d7e0e8] px-5 py-4 sm:px-6 sm:py-5">
+            <div className="flex items-start justify-between border-b border-[#343B43] px-5 py-4 sm:px-6 sm:py-5">
               <div className="min-w-0 pr-3">
-                <p className="text-xs font-semibold uppercase tracking-wider text-[#55779d]">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#C8A96B]">
                   Pothole Details
                 </p>
 
-                <h2 className="mt-1 break-words text-xl font-bold text-[#102a43]">
+                <h2 className="mt-1 break-words text-xl font-bold text-[#F4E9D0]">
                   {selectedPothole.location}
                 </h2>
               </div>
@@ -949,7 +955,7 @@ export default function PotholesPage() {
               <button
                 type="button"
                 onClick={() => setSelectedPothole(null)}
-                className="shrink-0 rounded-lg p-2 text-[#607d99] transition hover:bg-[#e9eff4]"
+                className="shrink-0 rounded-lg p-2 text-[#A1AAB2] transition hover:bg-[#303740]"
                 aria-label="Close"
               >
                 <X size={19} />
@@ -957,52 +963,52 @@ export default function PotholesPage() {
             </div>
 
             <div className="grid grid-cols-1 gap-3 px-5 py-5 sm:grid-cols-2 sm:gap-4 sm:px-6 sm:py-6">
-              <div className="rounded-xl border border-[#d7e0e8] bg-white p-4">
-                <p className="text-xs text-[#7890a6]">
+              <div className="rounded-xl border border-[#343B43] bg-[#1A2026] p-4">
+                <p className="text-xs text-[#8B969E]">
                   Pothole ID
                 </p>
 
-                <p className="mt-1 text-sm font-semibold text-[#102a43]">
+                <p className="mt-1 text-sm font-semibold text-[#F4E9D0]">
                   {selectedPothole.id}
                 </p>
               </div>
 
-              <div className="rounded-xl border border-[#d7e0e8] bg-white p-4">
-                <p className="text-xs text-[#7890a6]">
+              <div className="rounded-xl border border-[#343B43] bg-[#1A2026] p-4">
+                <p className="text-xs text-[#8B969E]">
                   Road
                 </p>
 
-                <p className="mt-1 break-words text-sm font-semibold text-[#102a43]">
+                <p className="mt-1 break-words text-sm font-semibold text-[#F4E9D0]">
                   {selectedPothole.road}
                 </p>
               </div>
 
-              <div className="rounded-xl border border-[#d7e0e8] bg-white p-4">
-                <p className="text-xs text-[#7890a6]">
+              <div className="rounded-xl border border-[#343B43] bg-[#1A2026] p-4">
+                <p className="text-xs text-[#8B969E]">
                   Severity
                 </p>
 
                 <span
-                  className={`mt-2 inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${severityStyles[selectedPothole.severity]}`}
+                  className={`mt-2 inline-flex min-h-[27px] items-center justify-center whitespace-nowrap rounded-md border px-2.5 py-1 text-[11px] font-semibold leading-none tracking-[0.01em] ${severityStyles[selectedPothole.severity]}`}
                 >
                   {selectedPothole.severity}
                 </span>
               </div>
 
-              <div className="rounded-xl border border-[#d7e0e8] bg-white p-4">
-                <p className="text-xs text-[#7890a6]">
+              <div className="rounded-xl border border-[#343B43] bg-[#1A2026] p-4">
+                <p className="text-xs text-[#8B969E]">
                   Status
                 </p>
 
                 <span
-                  className={`mt-2 inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${statusStyles[selectedPothole.status]}`}
+                  className={`mt-2 inline-flex min-h-[27px] items-center justify-center whitespace-nowrap rounded-md border px-2.5 py-1 text-[11px] font-semibold leading-none tracking-[0.01em] ${statusStyles[selectedPothole.status]}`}
                 >
                   {selectedPothole.status}
                 </span>
               </div>
 
-              <div className="rounded-xl border border-[#d7e0e8] bg-white p-4">
-                <p className="text-xs text-[#7890a6]">
+              <div className="rounded-xl border border-[#343B43] bg-[#1A2026] p-4">
+                <p className="text-xs text-[#8B969E]">
                   AI Confidence
                 </p>
 
@@ -1011,18 +1017,18 @@ export default function PotholesPage() {
                 </p>
               </div>
 
-              <div className="rounded-xl border border-[#d7e0e8] bg-white p-4">
-                <p className="text-xs text-[#7890a6]">
+              <div className="rounded-xl border border-[#343B43] bg-[#1A2026] p-4">
+                <p className="text-xs text-[#8B969E]">
                   Detected
                 </p>
 
-                <p className="mt-1 break-words text-xs font-semibold text-[#102a43]">
+                <p className="mt-1 break-words text-xs font-semibold text-[#F4E9D0]">
                   {selectedPothole.detected}
                 </p>
               </div>
             </div>
 
-            <div className="flex flex-col-reverse gap-3 border-t border-[#d7e0e8] bg-[#f1f5f8] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <div className="flex flex-col-reverse gap-3 border-t border-[#343B43] bg-[#1A2026] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
               <div className="flex w-full gap-2 sm:w-auto">
                 {selectedPothole.status !== "Resolved" && (
                   <button
@@ -1044,7 +1050,7 @@ export default function PotholesPage() {
               <button
                 type="button"
                 onClick={() => setSelectedPothole(null)}
-                className="w-full rounded-lg bg-[#285b89] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#214e78] sm:w-auto"
+                className="w-full rounded-lg bg-[#C8A96B] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#B99558] sm:w-auto"
               >
                 Close
               </button>
@@ -1055,3 +1061,5 @@ export default function PotholesPage() {
     </DashboardLayout>
   );
 }
+
+

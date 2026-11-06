@@ -1,11 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-
 import {
   Activity,
   AlertTriangle,
-  ArrowDownRight,
   ArrowUpRight,
   BarChart3,
   CalendarDays,
@@ -15,6 +13,7 @@ import {
   FileText,
   MapPin,
   Plus,
+  RefreshCw,
   Route,
   Search,
   ShieldCheck,
@@ -32,11 +31,24 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  CartesianGrid,
 } from "recharts";
 
 import PotholeMap from "@/components/map/PotholeMap";
 
 const API_URL = "https://potholevision.onrender.com";
+
+const C = {
+  bg: "#101317",
+  panel: "#181D23",
+  panel2: "#222831",
+  gold: "#C8A96B",
+  ivory: "#F4E9D0",
+  muted: "#8B969E",
+  red: "#A33A3A",
+  green: "#72977D",
+  border: "rgba(200,169,107,0.16)",
+};
 
 type Pothole = {
   id: number;
@@ -76,142 +88,154 @@ type WorkOrder = {
   created_at?: string | null;
 };
 
-function StatCard({
-  title,
-  value,
-  change,
-  positive = true,
-  icon,
-  iconClass,
-  live = false,
+function formatDate(value?: string | null) {
+  if (!value) return "â€”";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "â€”";
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function formatDateTime(value?: string | null) {
+  if (!value) return "â€”";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "â€”";
+  return date.toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function Panel({
+  children,
+  className = "",
 }: {
-  title: string;
-  value: string;
-  change: string;
-  positive?: boolean;
-  icon: ReactNode;
-  iconClass: string;
-  live?: boolean;
+  children: ReactNode;
+  className?: string;
 }) {
   return (
-    <div className="group min-w-0 rounded-2xl border border-[#cbd5df] bg-[#f7f9fb] p-3 shadow-[0_4px_18px_rgba(30,48,68,0.06)] transition duration-200 hover:-translate-y-0.5 hover:border-[#aebdcd] hover:shadow-[0_10px_28px_rgba(30,48,68,0.10)] sm:p-4 md:p-5">
-      <div className="flex items-start justify-between gap-2">
-        <div
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${iconClass} sm:h-10 sm:w-10 md:h-11 md:w-11`}
-        >
-          {icon}
-        </div>
-
-        <Activity
-          size={16}
-          className="shrink-0 text-[#aab9c8] transition group-hover:text-[#5c7fa8] sm:size-[18px]"
-        />
-      </div>
-
-      <p className="mt-2 truncate text-[11px] font-medium text-[#62758a] sm:mt-3 sm:text-sm md:mt-4">
-        {title}
-      </p>
-
-      <div className="mt-1 flex min-w-0 items-end justify-between gap-1.5">
-        <h3 className="min-w-0 truncate text-[22px] font-bold tracking-tight text-[#142b46] sm:text-[25px] md:text-[27px]">
-          {value}
-        </h3>
-
-        <span
-          className={`mb-0.5 flex shrink-0 items-center gap-0.5 text-[9px] font-semibold sm:text-[11px] md:text-xs ${
-            positive ? "text-emerald-600" : "text-red-500"
-          }`}
-        >
-          {positive ? (
-            <ArrowUpRight size={11} />
-          ) : (
-            <ArrowDownRight size={11} />
-          )}
-
-          {live ? "Live" : change}
-        </span>
-      </div>
-
-      <p className="mt-0.5 truncate text-[9px] text-[#8797a8] sm:mt-1 sm:text-[11px]">
-        {live ? "live from database" : "from last week"}
-      </p>
-    </div>
+    <section
+      className={`min-w-0 overflow-hidden rounded-2xl border bg-[#181D23] ${className}`}
+      style={{ borderColor: C.border }}
+    >
+      {children}
+    </section>
   );
 }
 
-function SectionHeader({
+function SectionTitle({
+  eyebrow,
   title,
   action,
   onAction,
 }: {
+  eyebrow?: string;
   title: string;
   action?: string;
   onAction?: () => void;
 }) {
   return (
-    <div className="mb-4 flex items-center justify-between">
-      <h2 className="text-[15px] font-bold text-[#142b46]">{title}</h2>
+    <div className="mb-5 flex items-center justify-between gap-3">
+      <div>
+        {eyebrow && (
+          <p className="mb-1 text-[9px] font-semibold uppercase tracking-[0.2em] text-[#C8A96B]">
+            {eyebrow}
+          </p>
+        )}
+        <h2 className="text-base font-semibold tracking-tight text-[#F4E9D0]">
+          {title}
+        </h2>
+      </div>
 
       {action && (
         <button
           onClick={onAction}
-          className="flex items-center gap-1 text-xs font-semibold text-[#426b97] transition hover:text-[#294f79]"
+          className="flex shrink-0 items-center gap-1 text-xs text-[#C8A96B] transition hover:text-[#F4E9D0]"
         >
           {action}
-          {action.toLowerCase().includes("view") && (
-            <ChevronRight size={14} />
-          )}
+          <ChevronRight size={14} />
         </button>
       )}
     </div>
   );
 }
 
-function SeverityBadge({ type }: { type: string }) {
-  const normalized = type?.toLowerCase() || "medium";
+function Badge({ value }: { value: string }) {
+  const normalized = (value || "pending").toLowerCase();
 
-  const styles: Record<string, string> = {
-    critical: "bg-red-50 text-red-600 border-red-200",
-    high: "bg-orange-50 text-orange-700 border-orange-200",
-    medium: "bg-blue-50 text-blue-700 border-blue-200",
-    low: "bg-slate-50 text-slate-600 border-slate-200",
-  };
+  const color =
+    normalized === "critical"
+      ? "border-[#A33A3A]/40 bg-[#A33A3A]/15 text-[#E58B83]"
+      : normalized === "high"
+        ? "border-[#C8A96B]/40 bg-[#C8A96B]/10 text-[#D8BB83]"
+        : normalized === "completed" || normalized === "resolved"
+          ? "border-[#72977D]/40 bg-[#72977D]/10 text-[#9BC4A4]"
+          : "border-white/10 bg-white/[0.05] text-[#AAB2B8]";
 
   return (
-    <span
-      className={`rounded-lg border px-2.5 py-1 text-[10px] font-semibold ${
-        styles[normalized] ?? styles.medium
-      }`}
-    >
-      {normalized.charAt(0).toUpperCase() + normalized.slice(1)}
+    <span className={`inline-flex rounded-md border px-2 py-1 text-[9px] font-semibold uppercase tracking-wider ${color}`}>
+      {normalized.replaceAll("_", " ")}
     </span>
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const normalized = status?.toLowerCase().replaceAll("_", " ") || "pending";
-
-  let style =
-    "border-[#cbd8e4] bg-[#e9f0f6] text-[#55728f]";
-
-  if (normalized === "completed" || normalized === "resolved") {
-    style = "border-emerald-200 bg-emerald-50 text-emerald-700";
-  }
-
-  if (normalized === "in progress") {
-    style = "border-blue-200 bg-blue-50 text-blue-700";
-  }
-
-  if (normalized === "assigned") {
-    style = "border-orange-200 bg-orange-50 text-orange-700";
-  }
-
+function StatCard({
+  title,
+  value,
+  subtitle,
+  icon: Icon,
+  accent = C.gold,
+}: {
+  title: string;
+  value: string | number;
+  subtitle: string;
+  icon: typeof Activity;
+  accent?: string;
+}) {
   return (
-    <span
-      className={`rounded-lg border px-2.5 py-1 text-[10px] font-semibold ${style}`}
-    >
-      {normalized.charAt(0).toUpperCase() + normalized.slice(1)}
-    </span>
+    <div className="group relative overflow-hidden rounded-2xl border border-white/[0.07] bg-[#181D23] p-4 transition duration-300 hover:-translate-y-1 hover:border-[#C8A96B]/40 sm:p-5">
+      <div
+        className="absolute -right-8 -top-8 h-28 w-28 rounded-full opacity-[0.07] blur-2xl"
+        style={{ background: accent }}
+      />
+
+      <div className="relative flex items-start justify-between">
+        <div
+          className="flex h-10 w-10 items-center justify-center rounded-xl border"
+          style={{
+            color: accent,
+            borderColor: `${accent}35`,
+            background: `${accent}12`,
+          }}
+        >
+          <Icon size={19} />
+        </div>
+
+        <ArrowUpRight
+          size={17}
+          className="text-[#626B73] transition group-hover:text-[#C8A96B]"
+        />
+      </div>
+
+      <p className="relative mt-5 text-[11px] font-medium text-[#8B969E]">
+        {title}
+      </p>
+
+      <div className="relative mt-1 flex items-end justify-between">
+        <h3 className="text-3xl font-semibold tracking-tight text-[#F4E9D0] sm:text-4xl">
+          {value}
+        </h3>
+      </div>
+
+      <p className="relative mt-2 text-[10px] text-[#737D85]">
+        {subtitle}
+      </p>
+    </div>
   );
 }
 
@@ -224,80 +248,48 @@ function DashboardModal({
   title: string;
   description?: string;
   onClose: () => void;
-  children?: ReactNode;
+  children: ReactNode;
 }) {
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0f1b2d]/45 px-4 backdrop-blur-[2px]"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 p-3 backdrop-blur-md"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg rounded-2xl border border-[#cbd5df] bg-[#f7f9fb] shadow-[0_24px_70px_rgba(15,27,45,0.25)]"
+        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-[#C8A96B]/20 bg-[#181D23] shadow-2xl"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="flex items-start justify-between border-b border-[#d8e0e8] px-6 py-5">
+        <div className="flex items-start justify-between border-b border-white/[0.08] p-5">
           <div>
-            <h2 className="text-lg font-bold text-[#142b46]">{title}</h2>
-
+            <h2 className="text-lg font-semibold text-[#F4E9D0]">
+              {title}
+            </h2>
             {description && (
-              <p className="mt-1 text-xs text-[#718398]">{description}</p>
+              <p className="mt-1 text-xs text-[#8B969E]">{description}</p>
             )}
           </div>
-
           <button
             onClick={onClose}
-            className="rounded-lg p-2 text-[#708297] transition hover:bg-[#e7edf3] hover:text-[#142b46]"
+            className="rounded-lg p-2 text-[#8B969E] hover:bg-white/10 hover:text-white"
           >
             <X size={18} />
           </button>
         </div>
-
-        <div className="p-6">{children}</div>
+        <div className="p-5">{children}</div>
       </div>
     </div>
   );
 }
 
-function formatDate(value?: string | null) {
-  if (!value) return "—";
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) return "—";
-
-  return date.toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-}
-
-function formatDateTime(value?: string | null) {
-  if (!value) return "—";
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) return "—";
-
-  return date.toLocaleString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
 export default function Dashboard() {
   const [modal, setModal] = useState<string | null>(null);
-
   const [potholes, setPotholes] = useState<Pothole[]>([]);
   const [inspections, setInspections] = useState<Inspection[]>([]);
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
-
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [mapLoading, setMapLoading] = useState(false);
   const [error, setError] = useState("");
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const closeModal = () => setModal(null);
 
@@ -306,43 +298,32 @@ export default function Dashboard() {
       setLoading(true);
       setError("");
 
-      const [potholeResponse, inspectionResponse, workOrderResponse] =
-        await Promise.all([
-          fetch(`${API_URL}/potholes`),
-          fetch(`${API_URL}/inspections`),
-          fetch(`${API_URL}/work-orders`),
-        ]);
+      const [p, i, w] = await Promise.all([
+        fetch(`${API_URL}/potholes`),
+        fetch(`${API_URL}/inspections`),
+        fetch(`${API_URL}/work-orders`),
+      ]);
 
-      if (!potholeResponse.ok) {
-        throw new Error("Failed to load potholes");
-      }
+      if (!p.ok) throw new Error("Unable to load pothole data");
 
-      const potholeData = await potholeResponse.json();
-      const inspectionData = inspectionResponse.ok
-        ? await inspectionResponse.json()
-        : [];
-      const workOrderData = workOrderResponse.ok
-        ? await workOrderResponse.json()
-        : [];
+      const pd = await p.json();
+      const id = i.ok ? await i.json() : [];
+      const wd = w.ok ? await w.json() : [];
 
-      const potholeRecords: Pothole[] = Array.isArray(potholeData)
-        ? potholeData
-        : potholeData.potholes || potholeData.data || [];
+      setPotholes(
+        Array.isArray(pd) ? pd : pd.potholes || pd.data || []
+      );
+      setInspections(
+        Array.isArray(id) ? id : id.inspections || id.data || []
+      );
+      setWorkOrders(
+        Array.isArray(wd) ? wd : wd.work_orders || wd.data || []
+      );
 
-      const inspectionRecords: Inspection[] = Array.isArray(inspectionData)
-        ? inspectionData
-        : inspectionData.inspections || inspectionData.data || [];
-
-      const workOrderRecords: WorkOrder[] = Array.isArray(workOrderData)
-        ? workOrderData
-        : workOrderData.work_orders || workOrderData.data || [];
-
-      setPotholes(potholeRecords);
-      setInspections(inspectionRecords);
-      setWorkOrders(workOrderRecords);
+      setLastUpdated(new Date());
     } catch (err) {
-      console.error("Dashboard loading error:", err);
-      setError("Some dashboard data could not be loaded.");
+      console.error(err);
+      setError("Dashboard data could not be loaded. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -355,137 +336,98 @@ export default function Dashboard() {
   const gpsPotholes = useMemo(
     () =>
       potholes.filter(
-        (pothole) =>
-          typeof pothole.latitude === "number" &&
-          typeof pothole.longitude === "number"
+        (p) =>
+          typeof p.latitude === "number" &&
+          typeof p.longitude === "number"
       ),
     [potholes]
   );
 
+  const filteredPotholes = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return potholes;
+
+    return potholes.filter((p) =>
+      [
+        p.id,
+        p.latitude,
+        p.longitude,
+        p.severity,
+        p.status,
+      ].some((v) => String(v ?? "").toLowerCase().includes(q))
+    );
+  }, [potholes, search]);
+
   const totalPotholes = potholes.length;
-
   const reportedCount = potholes.filter(
-    (pothole) => pothole.status?.toLowerCase() === "reported"
+    (p) => p.status?.toLowerCase() === "reported"
   ).length;
-
-  const inProgressCount = potholes.filter(
-    (pothole) =>
-      pothole.status?.toLowerCase() === "in_progress" ||
-      pothole.status?.toLowerCase() === "under_review"
+  const inProgressCount = potholes.filter((p) =>
+    ["in_progress", "under_review"].includes(p.status?.toLowerCase())
   ).length;
-
   const resolvedCount = potholes.filter(
-    (pothole) => pothole.status?.toLowerCase() === "resolved"
+    (p) => p.status?.toLowerCase() === "resolved"
+  ).length;
+
+  const criticalCount = potholes.filter(
+    (p) => p.severity?.toLowerCase() === "critical"
+  ).length;
+  const highCount = potholes.filter(
+    (p) => p.severity?.toLowerCase() === "high"
+  ).length;
+  const mediumCount = potholes.filter(
+    (p) => p.severity?.toLowerCase() === "medium"
+  ).length;
+  const lowCount = potholes.filter(
+    (p) => p.severity?.toLowerCase() === "low"
   ).length;
 
   const averageConfidence =
     potholes.length > 0
-      ? potholes.reduce(
-          (sum, pothole) => sum + (pothole.confidence || 0),
-          0
-        ) / potholes.length
+      ? potholes.reduce((sum, p) => sum + (p.confidence || 0), 0) /
+        potholes.length
       : 0;
 
-  const criticalCount = potholes.filter(
-    (pothole) => pothole.severity?.toLowerCase() === "critical"
-  ).length;
-
-  const highCount = potholes.filter(
-    (pothole) => pothole.severity?.toLowerCase() === "high"
-  ).length;
-
-  const mediumCount = potholes.filter(
-    (pothole) => pothole.severity?.toLowerCase() === "medium"
-  ).length;
-
-  const lowCount = potholes.filter(
-    (pothole) => pothole.severity?.toLowerCase() === "low"
-  ).length;
-
   const severityData = [
-    {
-      name: "Critical",
-      value: criticalCount,
-      color: "#c94b4b",
-    },
-    {
-      name: "High",
-      value: highCount,
-      color: "#d18a28",
-    },
-    {
-      name: "Medium",
-      value: mediumCount,
-      color: "#5c7fa8",
-    },
-    {
-      name: "Low",
-      value: lowCount,
-      color: "#9aaabd",
-    },
+    { name: "Critical", value: criticalCount, color: "#A33A3A" },
+    { name: "High", value: highCount, color: "#C8A96B" },
+    { name: "Medium", value: mediumCount, color: "#718A9B" },
+    { name: "Low", value: lowCount, color: "#72977D" },
   ].filter((item) => item.value > 0);
-
-  const searchedPotholes = useMemo(() => {
-    const query = search.trim().toLowerCase();
-
-    if (!query) return potholes;
-
-    return potholes.filter((pothole) => {
-      return (
-        String(pothole.id).includes(query) ||
-        String(pothole.latitude ?? "").includes(query) ||
-        String(pothole.longitude ?? "").includes(query) ||
-        String(pothole.severity ?? "").toLowerCase().includes(query) ||
-        String(pothole.status ?? "").toLowerCase().includes(query)
-      );
-    });
-  }, [potholes, search]);
-
-  const recentPotholes = searchedPotholes.slice(0, 5);
-
-  const recentInspections = [...inspections]
-    .sort((a, b) => {
-      const aDate = new Date(a.created_at || 0).getTime();
-      const bDate = new Date(b.created_at || 0).getTime();
-
-      return bDate - aDate;
-    })
-    .slice(0, 4);
-
-  const recentWorkOrders = [...workOrders]
-    .sort((a, b) => {
-      const aDate = new Date(a.created_at || 0).getTime();
-      const bDate = new Date(b.created_at || 0).getTime();
-
-      return bDate - aDate;
-    })
-    .slice(0, 5);
 
   const assignedOrders = workOrders.filter(
-    (order) => order.status?.toLowerCase() === "assigned"
+    (o) => o.status?.toLowerCase() === "assigned"
   ).length;
-
   const activeOrders = workOrders.filter(
-    (order) => order.status?.toLowerCase() === "in_progress"
+    (o) => o.status?.toLowerCase() === "in_progress"
   ).length;
-
   const completedOrders = workOrders.filter(
-    (order) => order.status?.toLowerCase() === "completed"
+    (o) => o.status?.toLowerCase() === "completed"
   ).length;
-
-  const pendingOrders = workOrders.filter(
-    (order) =>
-      order.status?.toLowerCase() !== "assigned" &&
-      order.status?.toLowerCase() !== "in_progress" &&
-      order.status?.toLowerCase() !== "completed"
-  ).length;
+  const pendingOrders = workOrders.length - assignedOrders - activeOrders - completedOrders;
 
   const workOrderChartData = [
-    { name: "Assigned", value: assignedOrders, color: "#557da5" },
-    { name: "In Progress", value: activeOrders, color: "#d18a28" },
-    { name: "Completed", value: completedOrders, color: "#5b8d76" },
-    { name: "Pending", value: pendingOrders, color: "#9aaabd" },
+    { name: "Assigned", value: assignedOrders, color: "#718A9B" },
+    { name: "In Progress", value: activeOrders, color: "#C8A96B" },
+    { name: "Completed", value: completedOrders, color: "#72977D" },
+    { name: "Pending", value: pendingOrders, color: "#A33A3A" },
   ].filter((item) => item.value > 0);
+
+  const recentInspections = [...inspections]
+    .sort(
+      (a, b) =>
+        new Date(b.created_at || 0).getTime() -
+        new Date(a.created_at || 0).getTime()
+    )
+    .slice(0, 5);
+
+  const recentWorkOrders = [...workOrders]
+    .sort(
+      (a, b) =>
+        new Date(b.created_at || 0).getTime() -
+        new Date(a.created_at || 0).getTime()
+    )
+    .slice(0, 5);
 
   const mapCenter: [number, number] =
     gpsPotholes.length > 0
@@ -495,45 +437,31 @@ export default function Dashboard() {
         ]
       : [23.0225, 72.5714];
 
-  /*
-   * Last 7 days.
-   * This is generated from the actual PostgreSQL pothole created_at values.
-   */
   const trendData = useMemo(() => {
-    const days: {
-      day: string;
-      detected: number;
-      resolved: number;
-    }[] = [];
+    const days = [];
 
     for (let index = 6; index >= 0; index--) {
       const date = new Date();
-
       date.setHours(0, 0, 0, 0);
       date.setDate(date.getDate() - index);
 
       const nextDate = new Date(date);
       nextDate.setDate(nextDate.getDate() + 1);
 
-      const detected = potholes.filter((pothole) => {
-        if (!pothole.created_at) return false;
-
-        const created = new Date(pothole.created_at);
-
-        return created >= date && created < nextDate;
+      const detected = potholes.filter((p) => {
+        if (!p.created_at) return false;
+        const d = new Date(p.created_at);
+        return d >= date && d < nextDate;
       }).length;
 
-      const resolved = potholes.filter((pothole) => {
+      const resolved = potholes.filter((p) => {
         if (
-          pothole.status?.toLowerCase() !== "resolved" ||
-          !pothole.created_at
-        ) {
-          return false;
-        }
+          p.status?.toLowerCase() !== "resolved" ||
+          !p.created_at
+        ) return false;
 
-        const created = new Date(pothole.created_at);
-
-        return created >= date && created < nextDate;
+        const d = new Date(p.created_at);
+        return d >= date && d < nextDate;
       }).length;
 
       days.push({
@@ -549,35 +477,17 @@ export default function Dashboard() {
     return days;
   }, [potholes]);
 
-  /*
-   * GPS locations grouped by rounded coordinates.
-   * This gives the "affected areas" section something useful
-   * without inventing Delhi road names.
-   */
   const affectedLocations = useMemo(() => {
-    const groups = new Map<
-      string,
-      {
-        name: string;
-        count: number;
-      }
-    >();
+    const groups = new Map<string, { name: string; count: number }>();
 
-    gpsPotholes.forEach((pothole) => {
-      const lat = Number(pothole.latitude).toFixed(3);
-      const lon = Number(pothole.longitude).toFixed(3);
+    gpsPotholes.forEach((p) => {
+      const lat = Number(p.latitude).toFixed(3);
+      const lon = Number(p.longitude).toFixed(3);
       const key = `${lat},${lon}`;
-
       const existing = groups.get(key);
 
-      if (existing) {
-        existing.count += 1;
-      } else {
-        groups.set(key, {
-          name: `${lat}, ${lon}`,
-          count: 1,
-        });
-      }
+      if (existing) existing.count += 1;
+      else groups.set(key, { name: key, count: 1 });
     });
 
     return Array.from(groups.values())
@@ -585,875 +495,769 @@ export default function Dashboard() {
       .slice(0, 5);
   }, [gpsPotholes]);
 
+  const inputClass =
+    "w-full rounded-xl border border-white/10 bg-[#101317] px-4 py-3 text-sm text-[#F4E9D0] outline-none placeholder:text-[#626D75] focus:border-[#C8A96B]/60";
+
+  const actionClass =
+    "flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#222831] px-4 py-3 text-xs font-semibold text-[#F4E9D0] transition hover:border-[#C8A96B]/50 hover:bg-[#2B323B]";
+
   return (
     <>
-      <main className="relative min-h-screen space-y-5 overflow-hidden bg-[#dce3e9] px-0 py-5">
-        {/* Premium Background Infrastructure Visuals */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -right-32 top-10 h-96 w-96 rounded-full border border-[#b8c7d5]/40" />
+      <main className="min-h-screen overflow-hidden bg-[#101317] px-3 pb-28 pt-5 text-[#F4E9D0] sm:px-6 sm:pb-10 lg:px-8 lg:pt-8">
 
-          <div className="absolute -right-20 top-20 h-72 w-72 rounded-full border border-[#b8c7d5]/30" />
+        {/* PAGE HEADER */}
+        <div className="mx-auto max-w-[1600px]">
 
-          <div className="absolute right-20 top-32 h-2 w-2 rounded-full bg-[#6685a5]/30" />
+          <div className="mb-7 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+            <div>
+              <div className="mb-3 flex items-center gap-2">
+                <span className="h-px w-7 bg-[#C8A96B]" />
+                <p className="text-[9px] font-bold uppercase tracking-[0.28em] text-[#C8A96B]">
+                  PotholeVision / Intelligence
+                </p>
+              </div>
 
-          <div className="absolute right-[8%] top-[18%] h-px w-[260px] rotate-[24deg] bg-[#9babbc]/30" />
+              <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl lg:text-[46px]">
+                Infrastructure
+                <span className="block text-[#C8A96B]">Command Center.</span>
+              </h1>
 
-          <div className="absolute right-[4%] top-[28%] h-px w-[320px] rotate-[-18deg] bg-[#9babbc]/25" />
+              <p className="mt-3 max-w-xl text-xs leading-6 text-[#8B969E] sm:text-sm">
+                Monitor road conditions, AI detections and infrastructure
+                maintenance operations from one intelligent workspace.
+              </p>
+            </div>
 
-          <div className="absolute bottom-20 right-[5%] h-64 w-64 rounded-full border border-[#b8c7d5]/25" />
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2 rounded-xl border border-[#72977D]/30 bg-[#72977D]/10 px-3 py-2.5">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#72977D] opacity-60" />
+                  <span className="relative h-2 w-2 rounded-full bg-[#72977D]" />
+                </span>
+                <span className="text-[10px] font-semibold text-[#9BC4A4]">
+                  LIVE SYSTEM
+                </span>
+              </div>
 
-          <div className="absolute bottom-24 right-[13%] flex items-center gap-2 opacity-40">
-            <span className="h-2 w-2 rounded-full bg-[#557da5]" />
-            <span className="h-px w-16 bg-[#557da5]" />
-            <span className="text-[9px] font-semibold tracking-widest text-[#55708c]">
-              GPS NODE
+              <button onClick={loadDashboardData} className={actionClass}>
+                <RefreshCw size={14} />
+                Refresh
+              </button>
+
+              <button
+                onClick={() => setModal("report")}
+                className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#C8A96B] to-[#D8BB83] px-5 py-3.5 text-xs font-bold text-[#101317] shadow-[0_8px_24px_rgba(200,169,107,0.16)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(200,169,107,0.22)] sm:min-w-[145px]"
+              >
+                <Plus size={15} />
+                Report issue
+              </button>
+            </div>
+          </div>
+
+          {/* STATUS STRIP */}
+          <div className="mb-7 flex flex-wrap items-center gap-x-5 gap-y-2 border-y border-white/[0.07] py-3 text-[10px] text-[#8B969E]">
+            <span className="flex items-center gap-2">
+              <Activity size={13} className="text-[#C8A96B]" />
+              Infrastructure monitoring
+            </span>
+            <span className="flex items-center gap-2">
+              <MapPin size={13} />
+              {gpsPotholes.length} GPS coordinates
+            </span>
+            <span className="flex items-center gap-2">
+              <Clock3 size={13} />
+              {lastUpdated ? `Updated ${lastUpdated.toLocaleTimeString("en-IN")}` : "Awaiting data"}
             </span>
           </div>
-        </div>
 
-        {/* Header */}
-        <div className="relative flex items-center justify-between px-0.5">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#55799d]">
-              Overview
-            </p>
+          {error && (
+            <div className="mb-5 flex items-center justify-between rounded-xl border border-[#A33A3A]/30 bg-[#A33A3A]/10 p-4 text-xs text-[#E58B83]">
+              {error}
+              <button onClick={loadDashboardData}>
+                <RefreshCw size={15} />
+              </button>
+            </div>
+          )}
 
-            <h1 className="mt-1 text-[27px] font-bold tracking-tight text-[#142b46]">
-              Road Infrastructure Dashboard
-            </h1>
-
-            <p className="mt-1 text-xs text-[#718398]">
-              City-wide pothole detection, inspection and maintenance overview
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setModal("date")}
-              className="hidden items-center gap-2 rounded-xl border border-[#c8d3de] bg-[#f7f9fb] px-4 py-3 text-sm font-medium text-[#536b83] shadow-sm transition hover:border-[#9eb1c4] hover:bg-white md:flex"
-            >
-              <CalendarDays size={16} />
-              Live Database
-            </button>
-
-            <button
-              onClick={() => setModal("create")}
-              className="flex items-center gap-2 rounded-xl bg-[#285985] px-5 py-3 text-sm font-semibold text-white shadow-[0_6px_16px_rgba(40,89,133,0.20)] transition hover:bg-[#214c75] hover:shadow-[0_8px_20px_rgba(40,89,133,0.26)]"
-            >
-              <Plus size={17} />
-              Create Work Order
-            </button>
-          </div>
-        </div>
-
-        {/* Infrastructure Search */}
-        <section className="relative flex items-center gap-3 rounded-2xl border border-[#c8d4df] bg-[#e8eef3]/90 px-4 py-3 shadow-sm">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#d7e3ee] text-[#4d7399]">
-            <Search size={19} />
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-semibold text-[#365a7e]">
-              Infrastructure Search
-            </p>
-
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search GPS coordinates, severity, status or pothole ID"
-              className="w-full bg-transparent text-[11px] text-[#516b84] outline-none placeholder:text-[#8da0b3]"
+          {/* KPI GRID */}
+          <div className="mb-7 grid grid-cols-2 gap-3 xl:grid-cols-4 xl:gap-4">
+            <StatCard
+              title="Total detections"
+              value={loading ? "â€”" : totalPotholes}
+              subtitle="All recorded pothole reports"
+              icon={Activity}
+            />
+            <StatCard
+              title="Critical severity"
+              value={loading ? "â€”" : criticalCount}
+              subtitle="Requires priority attention"
+              icon={AlertTriangle}
+              accent={C.red}
+            />
+            <StatCard
+              title="Under maintenance"
+              value={loading ? "â€”" : inProgressCount}
+              subtitle="Currently being addressed"
+              icon={Wrench}
+              accent="#718A9B"
+            />
+            <StatCard
+              title="Resolved issues"
+              value={loading ? "â€”" : resolvedCount}
+              subtitle="Marked as resolved"
+              icon={ShieldCheck}
+              accent={C.green}
             />
           </div>
 
-          <div className="hidden items-center gap-5 text-[10px] text-[#54708c] lg:flex">
-            <span className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              Live GPS
-            </span>
+          {/* SEARCH */}
+          <div className="mb-7 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#C8A96B]">
+                Operations overview
+              </p>
+              <h2 className="mt-1 text-xl font-semibold text-[#F4E9D0]">
+                Network intelligence
+              </h2>
+            </div>
 
-            <span className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              AI Detection
-            </span>
-
-            <span className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              Database Connected
-            </span>
+            <div className="relative w-full sm:max-w-xs">
+              <Search
+                size={15}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B969E]"
+              />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search ID, severity, status..."
+                className="w-full rounded-xl border border-white/10 bg-[#181D23] py-3 pl-9 pr-4 text-xs text-[#F4E9D0] outline-none placeholder:text-[#626D75] focus:border-[#C8A96B]/50"
+              />
+            </div>
           </div>
-        </section>
 
-        {error && (
-          <div className="relative rounded-xl border border-orange-200 bg-orange-50 px-4 py-3 text-xs font-medium text-orange-700">
-            {error}
-          </div>
-        )}
+          {/* MAP + SEVERITY */}
+          <div className="mb-5 grid grid-cols-1 gap-5 xl:grid-cols-12">
 
-        {/* Stats */}
-<div className="relative grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-  <StatCard
-    title="Total Potholes"
-    value={loading ? "..." : String(totalPotholes)}
-    change=""
-    live
-    icon={<AlertTriangle size={21} />}
-    iconClass="bg-red-50 text-red-500"
-  />
+            <Panel className="xl:col-span-8">
+              <div className="flex flex-wrap items-center justify-between gap-3 p-5 pb-3">
+                <SectionTitle
+                  eyebrow="Geospatial intelligence"
+                  title="Live infrastructure map"
+                />
+                <button
+                  onClick={() => setModal("map")}
+                  className="mb-5 flex items-center gap-1 text-[10px] font-semibold text-[#C8A96B] hover:text-[#F4E9D0]"
+                >
+                  Expand map <ArrowUpRight size={13} />
+                </button>
+              </div>
 
-  <StatCard
-    title="Inspections"
-    value={loading ? "..." : String(inspections.length)}
-    change=""
-    live
-    icon={<FileText size={21} />}
-    iconClass="bg-blue-50 text-[#557ca5]"
-  />
-
-  <StatCard
-    title="Work Orders"
-    value={loading ? "..." : String(workOrders.length)}
-    change=""
-    live
-    icon={<Wrench size={21} />}
-    iconClass="bg-slate-100 text-[#557ca5]"
-  />
-
-  <StatCard
-    title="Resolved"
-    value={loading ? "..." : String(resolvedCount)}
-    change=""
-    live
-    icon={<CheckCircle2 size={21} />}
-    iconClass="bg-emerald-50 text-emerald-600"
-  />
-</div>
-
-        {/* Main Analytics */}
-        <div className="relative grid grid-cols-12 gap-5">
-          {/* REAL GPS MAP */}
-          <section className="col-span-12 rounded-2xl border border-[#c8d4df] bg-[#f7f9fb] p-5 shadow-[0_5px_20px_rgba(30,48,68,0.06)] xl:col-span-6">
-            <SectionHeader
-              title="Pothole Heatmap"
-              action="View Map"
-              onAction={() => setModal("map")}
-            />
-
-            <div className="relative h-[290px] overflow-hidden rounded-xl">
-              {mapLoading ? (
-                <div className="flex h-full items-center justify-center bg-[#e8eef3]">
-                  <div className="text-center">
-                    <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-[#557da5] border-t-transparent" />
-
-                    <p className="mt-3 text-xs font-semibold text-[#526a82]">
-                      Loading GPS network...
-                    </p>
-                  </div>
-                </div>
-              ) : (
+              <div className="relative h-[310px] overflow-hidden sm:h-[390px]">
                 <PotholeMap
                   potholes={gpsPotholes}
                   center={mapCenter}
                   zoom={12}
                 />
-              )}
 
-              {/* Premium map overlay */}
-              <div className="pointer-events-none absolute left-3 top-3 z-[500] rounded-xl border border-white/10 bg-[#17283a]/90 px-4 py-3 text-white shadow-lg">
-                <div className="flex items-center gap-2">
-                  <Route size={13} className="text-[#91b1cf]" />
-
-                  <span className="text-[10px] font-bold tracking-wide">
-                    LIVE GPS NETWORK
-                  </span>
-                </div>
-
-                <p className="mt-1 text-[9px] text-white/55">
-                  {gpsPotholes.length} GPS locations
-                </p>
-              </div>
-
-              <div className="pointer-events-none absolute bottom-3 left-3 z-[500] rounded-lg bg-[#17283a]/90 px-3 py-2 text-[9px] text-white/75 shadow-lg">
-                Low
-                <span className="mx-2 inline-block h-1.5 w-24 rounded-full bg-gradient-to-r from-[#5c7fa8] via-[#d18a28] to-[#c94b4b]" />
-                High
-              </div>
-
-              <div className="pointer-events-none absolute bottom-3 right-3 z-[500] rounded-lg bg-[#17283a]/90 px-3 py-2 text-[9px] text-white/70 shadow-lg">
-                <span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                GPS signal active
-              </div>
-            </div>
-
-            <div className="mt-3 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-[10px] text-[#62758a]">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                Real PostgreSQL GPS data
-              </div>
-
-              <span className="text-[10px] font-semibold text-[#55708c]">
-                {gpsPotholes.length} mapped
-              </span>
-            </div>
-          </section>
-
-          {/* Severity */}
-          <section className="col-span-12 rounded-2xl border border-[#c8d4df] bg-[#f7f9fb] p-5 shadow-[0_5px_20px_rgba(30,48,68,0.06)] md:col-span-6 xl:col-span-3">
-            <SectionHeader title="Potholes by Severity" />
-
-            <div className="relative h-[250px]">
-              {severityData.length > 0 ? (
-                <>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={severityData}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={62}
-                        outerRadius={92}
-                        paddingAngle={3}
-                        stroke="none"
-                      >
-                        {severityData.map((entry) => (
-                          <Cell key={entry.name} fill={entry.color} />
-                        ))}
-                      </Pie>
-
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-
-                  <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-2xl font-bold text-[#142b46]">
-                      {totalPotholes}
-                    </span>
-
-                    <span className="text-[10px] text-[#8292a4]">
-                      Total
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <div className="flex h-full items-center justify-center text-xs text-[#8292a4]">
-                  No severity data
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              {[
-                ["Critical", criticalCount, "#c94b4b"],
-                ["High", highCount, "#d18a28"],
-                ["Medium", mediumCount, "#5c7fa8"],
-                ["Low", lowCount, "#9aaabd"],
-              ].map(([name, value, color]) => (
-                <div
-                  key={name}
-                  className="flex items-center justify-between text-xs"
-                >
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="h-2 w-2 rounded-full"
-                      style={{ background: color as string }}
-                    />
-
-                    <span className="text-[#62758a]">{name}</span>
-                  </div>
-
-                  <span className="font-semibold text-[#263f5a]">
-                    {value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Inspections */}
-          <section className="col-span-12 rounded-2xl border border-[#c8d4df] bg-[#f7f9fb] p-5 shadow-[0_5px_20px_rgba(30,48,68,0.06)] md:col-span-6 xl:col-span-3">
-            <SectionHeader
-              title="Recent Inspections"
-              action="View all"
-              onAction={() => setModal("inspections")}
-            />
-
-            <div className="space-y-3">
-              {recentInspections.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-[#cbd8e4] p-6 text-center">
-                  <FileText
-                    size={22}
-                    className="mx-auto text-[#8ca0b4]"
-                  />
-
-                  <p className="mt-2 text-xs font-semibold text-[#536a82]">
-                    No inspections yet
+                <div className="pointer-events-none absolute left-3 top-3 z-[400] rounded-lg border border-black/10 bg-[#101317]/90 px-3 py-2 backdrop-blur-md">
+                  <p className="text-[8px] font-bold uppercase tracking-widest text-[#C8A96B]">
+                    GPS NETWORK
                   </p>
-
-                  <p className="mt-1 text-[9px] text-[#8999aa]">
-                    Inspection records will appear here.
+                  <p className="mt-1 text-lg font-semibold text-white">
+                    {gpsPotholes.length}
+                    <span className="ml-1 text-[9px] font-normal text-[#8B969E]">
+                      locations
+                    </span>
                   </p>
                 </div>
-              ) : (
-                recentInspections.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setModal(`inspection-${item.id}`)}
-                    className="flex w-full items-center gap-3 rounded-xl p-1.5 text-left transition hover:bg-[#eaf0f5]"
-                  >
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#e4edf5] text-[#557ca5]">
-                      <MapPin size={18} />
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.07] px-5 py-3">
+                <span className="text-[9px] text-[#8B969E]">
+                  Geographic pothole distribution
+                </span>
+                <span className="flex items-center gap-2 text-[9px] text-[#72977D]">
+                  <span className="h-2 w-2 rounded-full bg-[#72977D]" />
+                  GPS coordinates available
+                </span>
+              </div>
+            </Panel>
+
+            <Panel className="p-5 xl:col-span-4">
+              <SectionTitle
+                eyebrow="AI classification"
+                title="Severity distribution"
+              />
+
+              <div className="relative mx-auto h-[225px] max-w-[270px]">
+                {severityData.length > 0 ? (
+                  <>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={severityData}
+                          dataKey="value"
+                          nameKey="name"
+                          innerRadius={68}
+                          outerRadius={96}
+                          paddingAngle={4}
+                          stroke="none"
+                        >
+                          {severityData.map((item) => (
+                            <Cell key={item.name} fill={item.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{
+                            background: "#222831",
+                            border: "1px solid rgba(200,169,107,.2)",
+                            borderRadius: 10,
+                            color: "#F4E9D0",
+                            fontSize: 11,
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+
+                    <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="text-4xl font-semibold text-[#F4E9D0]">
+                        {totalPotholes}
+                      </span>
+                      <span className="mt-1 text-[9px] uppercase tracking-widest text-[#8B969E]">
+                        Detections
+                      </span>
                     </div>
+                  </>
+                ) : (
+                  <div className="flex h-full items-center justify-center rounded-full border-[20px] border-white/[0.05]">
+                    <p className="text-xs text-[#8B969E]">No severity data</p>
+                  </div>
+                )}
+              </div>
 
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs font-semibold text-[#243c56]">
-                        Pothole #{item.pothole_id}
-                      </p>
-
-                      <p className="mt-1 truncate text-[9px] text-[#8999aa]">
-                        {item.inspector_name}
-                      </p>
-                    </div>
-
-                    <SeverityBadge
-                      type={item.confirmed_severity || "medium"}
-                    />
-                  </button>
-                ))
-              )}
-            </div>
-          </section>
-        </div>
-
-        {/* Bottom Analytics */}
-        <div className="relative grid grid-cols-12 gap-5">
-          {/* Trend */}
-          <section className="col-span-12 rounded-2xl border border-[#c8d4df] bg-[#f7f9fb] p-5 shadow-[0_5px_20px_rgba(30,48,68,0.06)] xl:col-span-5">
-            <SectionHeader title="Potholes Trend" action="Last 7 Days" />
-
-            <div className="h-[270px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={trendData}>
-                  <XAxis
-                    dataKey="day"
-                    tick={{ fontSize: 9, fill: "#8292a4" }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-
-                  <YAxis
-                    allowDecimals={false}
-                    tick={{ fontSize: 9, fill: "#8292a4" }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: "12px",
-                      border: "1px solid #cbd5df",
-                      fontSize: "11px",
-                    }}
-                  />
-
-                  <Line
-                    type="monotone"
-                    dataKey="detected"
-                    stroke="#557da5"
-                    strokeWidth={3}
-                    dot={{ r: 3 }}
-                  />
-
-                  <Line
-                    type="monotone"
-                    dataKey="resolved"
-                    stroke="#5b8d76"
-                    strokeWidth={3}
-                    dot={{ r: 3 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="flex justify-center gap-5 text-[10px]">
-              <span className="flex items-center gap-2 text-[#6f8093]">
-                <span className="h-2 w-2 rounded-full bg-[#557da5]" />
-                Detected
-              </span>
-
-              <span className="flex items-center gap-2 text-[#6f8093]">
-                <span className="h-2 w-2 rounded-full bg-[#5b8d76]" />
-                Resolved
-              </span>
-            </div>
-          </section>
-
-          {/* Affected Locations */}
-          <section className="col-span-12 rounded-2xl border border-[#c8d4df] bg-[#f7f9fb] p-5 shadow-[0_5px_20px_rgba(30,48,68,0.06)] md:col-span-6 xl:col-span-4">
-            <SectionHeader
-              title="Top Affected Locations"
-              action="View all"
-              onAction={() => setModal("roads")}
-            />
-
-            <div className="space-y-5">
-              {affectedLocations.length === 0 ? (
-                <div className="py-8 text-center text-xs text-[#8292a4]">
-                  No GPS locations available.
-                </div>
-              ) : (
-                affectedLocations.map((location) => {
-                  const maxCount = affectedLocations[0]?.count || 1;
+              <div className="mt-3 space-y-4">
+                {[
+                  ["Critical", criticalCount, C.red],
+                  ["High", highCount, C.gold],
+                  ["Medium", mediumCount, "#718A9B"],
+                  ["Low", lowCount, C.green],
+                ].map(([name, value, color]) => {
+                  const count = Number(value);
+                  const percentage = totalPotholes
+                    ? (count / totalPotholes) * 100
+                    : 0;
 
                   return (
-                    <div key={location.name}>
-                      <div className="mb-2 flex items-center justify-between">
-                        <span className="flex items-center gap-2 text-xs font-medium text-[#536a82]">
-                          <MapPin size={13} />
-                          {location.name}
-                        </span>
-
-                        <span className="text-xs font-bold text-[#29445f]">
-                          {location.count}
+                    <div key={String(name)}>
+                      <div className="mb-2 flex justify-between text-[10px]">
+                        <span className="text-[#AAB2B8]">{name}</span>
+                        <span className="font-semibold text-[#F4E9D0]">
+                          {count}
                         </span>
                       </div>
-
-                      <div className="h-1.5 overflow-hidden rounded-full bg-[#dce4eb]">
+                      <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.07]">
                         <div
-                          className="h-full rounded-full bg-[#6688aa]"
+                          className="h-full rounded-full transition-all"
                           style={{
-                            width: `${(location.count / maxCount) * 100}%`,
+                            width: `${percentage}%`,
+                            background: String(color),
                           }}
                         />
                       </div>
                     </div>
                   );
-                })
-              )}
-            </div>
-          </section>
+                })}
+              </div>
+            </Panel>
+          </div>
 
-          {/* Work Order Status */}
-          <section className="col-span-12 rounded-2xl border border-[#c8d4df] bg-[#f7f9fb] p-5 shadow-[0_5px_20px_rgba(30,48,68,0.06)] md:col-span-6 xl:col-span-3">
-            <SectionHeader
-              title="Work Order Status"
-              action="View all"
-              onAction={() => setModal("orders")}
-            />
+          {/* TREND + INSPECTIONS + LOCATIONS */}
+          <div className="mb-5 grid grid-cols-1 gap-5 xl:grid-cols-12">
 
-            <div className="relative mx-auto h-[190px] w-[190px]">
-              {workOrderChartData.length > 0 ? (
-                <>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={workOrderChartData}
-                        dataKey="value"
-                        innerRadius={57}
-                        outerRadius={82}
-                        paddingAngle={3}
-                        stroke="none"
-                      >
-                        {workOrderChartData.map((entry) => (
-                          <Cell
-                            key={entry.name}
-                            fill={entry.color}
-                          />
-                        ))}
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
+            <Panel className="p-5 xl:col-span-6">
+              <SectionTitle
+                eyebrow="Performance intelligence"
+                title="Detection activity"
+              />
 
-                  <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-2xl font-bold text-[#142b46]">
-                      {workOrders.length}
-                    </span>
-
-                    <span className="text-[10px] text-[#8292a4]">
-                      Total
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <div className="flex h-full items-center justify-center rounded-full border-[22px] border-[#e3e9ef]">
-                  <div className="text-center">
-                    <span className="block text-xl font-bold text-[#142b46]">
-                      0
-                    </span>
-
-                    <span className="text-[10px] text-[#8292a4]">
-                      Total
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="mt-2 grid grid-cols-2 gap-3">
-              {[
-                ["Assigned", assignedOrders, "#557da5"],
-                ["In Progress", activeOrders, "#d18a28"],
-                ["Completed", completedOrders, "#5b8d76"],
-                ["Pending", pendingOrders, "#9aaabd"],
-              ].map(([name, value, color]) => (
-                <div key={name} className="text-[10px]">
-                  <div className="flex items-center gap-1.5">
-                    <span
-                      className="h-2 w-2 rounded-full"
-                      style={{ background: color as string }}
-                    />
-
-                    <span className="text-[#718397]">
-                      {name}
-                    </span>
-                  </div>
-
-                  <p className="ml-3.5 mt-0.5 font-bold text-[#29445f]">
-                    {value}
+              <div className="mb-4 flex gap-5">
+                <div>
+                  <p className="text-[9px] text-[#8B969E]">Detected</p>
+                  <p className="mt-1 text-xl font-semibold text-[#C8A96B]">
+                    {trendData.reduce((s, d) => s + d.detected, 0)}
                   </p>
                 </div>
-              ))}
-            </div>
-          </section>
-        </div>
+                <div>
+                  <p className="text-[9px] text-[#8B969E]">Resolved</p>
+                  <p className="mt-1 text-xl font-semibold text-[#72977D]">
+                    {trendData.reduce((s, d) => s + d.resolved, 0)}
+                  </p>
+                </div>
+              </div>
 
-        {/* Quick Actions */}
-        <div className="relative grid grid-cols-12 gap-5">
-          <section className="col-span-12 rounded-2xl border border-[#c8d4df] bg-[#f7f9fb] p-5 shadow-[0_5px_20px_rgba(30,48,68,0.06)]">
-            <SectionHeader title="Quick Actions" />
-
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {[
-                ["Report Pothole", AlertTriangle, "report"],
-                ["Schedule Inspection", CalendarDays, "inspection"],
-                ["Create Work Order", Wrench, "create"],
-                ["Generate Report", BarChart3, "report"],
-              ].map(([name, Icon, action]) => {
-                const ActionIcon = Icon as typeof AlertTriangle;
-
-                return (
-                  <button
-                    key={name as string}
-                    onClick={() => setModal(action as string)}
-                    className="group flex min-h-[92px] flex-col items-center justify-center gap-2 rounded-xl border border-[#d4dee7] bg-[#eef3f7] p-3 transition hover:border-[#aebfd0] hover:bg-white"
-                  >
-                    <ActionIcon
-                      size={21}
-                      className="text-[#557da5] transition group-hover:scale-105"
+              <div className="h-[230px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={trendData}>
+                    <CartesianGrid
+                      stroke="rgba(255,255,255,.06)"
+                      vertical={false}
                     />
+                    <XAxis
+                      dataKey="day"
+                      tick={{ fontSize: 9, fill: "#8B969E" }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      allowDecimals={false}
+                      tick={{ fontSize: 9, fill: "#8B969E" }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={25}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        background: "#222831",
+                        border: "1px solid rgba(200,169,107,.2)",
+                        borderRadius: 10,
+                        color: "#F4E9D0",
+                        fontSize: 11,
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="detected"
+                      stroke="#C8A96B"
+                      strokeWidth={2.5}
+                      dot={{ fill: "#C8A96B", r: 3 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="resolved"
+                      stroke="#72977D"
+                      strokeWidth={2.5}
+                      dot={{ fill: "#72977D", r: 3 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
 
-                    <span className="text-[10px] font-semibold text-[#536a82]">
-                      {name as string}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-        </div>
-
-        {/* Recent Work Orders */}
-        <section className="relative overflow-hidden rounded-2xl border border-[#c8d4df] bg-[#f7f9fb] shadow-[0_5px_20px_rgba(30,48,68,0.06)]">
-          <div className="flex items-center justify-between border-b border-[#d8e0e8] px-5 py-4">
-            <div>
-              <h2 className="text-[15px] font-bold text-[#142b46]">
-                Recent Work Orders
-              </h2>
-
-              <p className="mt-1 text-[10px] text-[#8292a4]">
-                Latest maintenance activity from PostgreSQL
-              </p>
-            </div>
-
-            <button
-              onClick={() => setModal("orders")}
-              className="flex items-center gap-1 text-xs font-semibold text-[#426b97] transition hover:text-[#294f79]"
-            >
-              View all
-              <ChevronRight size={14} />
-            </button>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[800px] text-left">
-              <thead>
-                <tr className="border-b border-[#d8e0e8] bg-[#edf2f6]">
-                  {[
-                    "Work Order ID",
-                    "Pothole",
-                    "Priority",
-                    "Assigned To",
-                    "Status",
-                    "Created At",
-                    "ETA",
-                  ].map((heading) => (
-                    <th
-                      key={heading}
-                      className="px-5 py-3 text-[10px] font-semibold uppercase tracking-wide text-[#7b8c9e]"
-                    >
-                      {heading}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-
-              <tbody>
-                {recentWorkOrders.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={7}
-                      className="px-5 py-10 text-center text-xs text-[#8292a4]"
-                    >
-                      No work orders found.
-                    </td>
-                  </tr>
-                ) : (
-                  recentWorkOrders.map((order) => (
-                    <tr
-                      key={order.id}
-                      className="border-b border-[#e2e8ee] transition hover:bg-[#edf3f7]"
-                    >
-                      <td className="px-5 py-4 text-xs font-semibold text-[#426b97]">
-                        WO-{String(order.id).padStart(5, "0")}
-                      </td>
-
-                      <td className="px-5 py-4 text-xs font-medium text-[#536a82]">
-                        PV-{String(order.pothole_id).padStart(5, "0")}
-                      </td>
-
-                      <td className="px-5 py-4">
-                        <SeverityBadge type={order.priority} />
-                      </td>
-
-                      <td className="px-5 py-4 text-xs text-[#62758a]">
-                        {order.contractor_name}
-                      </td>
-
-                      <td className="px-5 py-4">
-                        <StatusBadge status={order.status} />
-                      </td>
-
-                      <td className="px-5 py-4 text-xs text-[#7c8d9f]">
-                        {formatDateTime(order.created_at)}
-                      </td>
-
-                      <td className="px-5 py-4 text-xs font-medium text-[#536a82]">
-                        {formatDate(order.scheduled_date)}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        {/* System Health */}
-        <section className="relative flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#29415c] bg-[#14263a] px-5 py-4 text-white shadow-[0_8px_25px_rgba(15,27,45,0.12)]">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-400/10 text-emerald-400">
-              <ShieldCheck size={18} />
-            </div>
-
-            <div>
-              <p className="text-xs font-semibold">System Health</p>
-
-              <p className="text-[10px] text-white/45">
-                All core services operational
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-5">
-            {[
-              "AI Service",
-              "GPS Service",
-              "Database",
-              "Notifications",
-            ].map((service) => (
-              <div
-                key={service}
-                className="flex items-center gap-2"
-              >
-                <span className="h-2 w-2 rounded-full bg-emerald-400" />
-
-                <span className="text-[10px] text-white/60">
-                  {service}
+              <div className="mt-3 flex gap-5 text-[9px] text-[#8B969E]">
+                <span className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-[#C8A96B]" />
+                  Detected
+                </span>
+                <span className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-[#72977D]" />
+                  Resolved
                 </span>
               </div>
-            ))}
+            </Panel>
+
+            <Panel className="p-5 xl:col-span-3">
+              <SectionTitle
+                eyebrow="Field operations"
+                title="Recent inspections"
+                action="View all"
+                onAction={() => setModal("inspections")}
+              />
+
+              <div className="space-y-4">
+                {recentInspections.length === 0 ? (
+                  <p className="py-10 text-center text-xs text-[#8B969E]">
+                    No inspections available.
+                  </p>
+                ) : (
+                  recentInspections.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => setModal(`inspection-${item.id}`)}
+                      className="flex w-full items-center gap-3 border-b border-white/[0.06] pb-3 text-left last:border-0"
+                    >
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#C8A96B]/10 text-[#C8A96B]">
+                        <MapPin size={16} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-semibold text-[#F4E9D0]">
+                          Pothole #{item.pothole_id}
+                        </p>
+                        <p className="mt-1 truncate text-[9px] text-[#8B969E]">
+                          {item.inspector_name}
+                        </p>
+                      </div>
+                      <Badge value={item.confirmed_severity || "medium"} />
+                    </button>
+                  ))
+                )}
+              </div>
+            </Panel>
+
+            <Panel className="p-5 xl:col-span-3">
+              <SectionTitle
+                eyebrow="Geographic hotspots"
+                title="Affected locations"
+                action="View all"
+                onAction={() => setModal("roads")}
+              />
+
+              <div className="space-y-5">
+                {affectedLocations.length === 0 ? (
+                  <p className="py-10 text-center text-xs text-[#8B969E]">
+                    No GPS data available.
+                  </p>
+                ) : (
+                  affectedLocations.map((location, index) => (
+                    <div key={location.name}>
+                      <div className="mb-2 flex items-center justify-between gap-2">
+                        <span className="flex items-center gap-2 text-[10px] text-[#AAB2B8]">
+                          <MapPin size={12} className="text-[#C8A96B]" />
+                          {location.name}
+                        </span>
+                        <span className="text-xs font-semibold text-[#F4E9D0]">
+                          {location.count}
+                        </span>
+                      </div>
+                      <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.07]">
+                        <div
+                          className="h-full rounded-full bg-[#C8A96B]"
+                          style={{
+                            width: `${(location.count / (affectedLocations[0]?.count || 1)) * 100}%`,
+                            opacity: 1 - index * 0.12,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </Panel>
           </div>
-        </section>
+
+          {/* WORK ORDERS */}
+          <div className="mb-5 grid grid-cols-1 gap-5 lg:grid-cols-12">
+            <Panel className="p-5 lg:col-span-4">
+              <SectionTitle
+                eyebrow="Maintenance operations"
+                title="Work order status"
+                action="View all"
+                onAction={() => setModal("orders")}
+              />
+
+              <div className="relative mx-auto h-[200px] max-w-[240px]">
+                {workOrderChartData.length > 0 ? (
+                  <>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={workOrderChartData}
+                          dataKey="value"
+                          innerRadius={62}
+                          outerRadius={88}
+                          paddingAngle={4}
+                          stroke="none"
+                        >
+                          {workOrderChartData.map((item) => (
+                            <Cell key={item.name} fill={item.color} />
+                          ))}
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="text-3xl font-semibold text-[#F4E9D0]">
+                        {workOrders.length}
+                      </span>
+                      <span className="text-[9px] uppercase tracking-widest text-[#8B969E]">
+                        Orders
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex h-full items-center justify-center rounded-full border-[18px] border-white/[0.05] text-xs text-[#8B969E]">
+                    No orders
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                {workOrderChartData.map((item) => (
+                  <div key={item.name} className="flex items-center gap-2">
+                    <span
+                      className="h-2 w-2 rounded-full"
+                      style={{ background: item.color }}
+                    />
+                    <span className="text-[9px] text-[#8B969E]">
+                      {item.name}
+                    </span>
+                    <span className="ml-auto text-xs font-semibold text-[#F4E9D0]">
+                      {item.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </Panel>
+
+            <Panel className="lg:col-span-8">
+              <div className="flex items-center justify-between border-b border-white/[0.07] p-5">
+                <SectionTitle
+                  eyebrow="Maintenance pipeline"
+                  title="Recent work orders"
+                  action="View all"
+                  onAction={() => setModal("orders")}
+                />
+                <button
+                  onClick={() => setModal("create")}
+                  className="mb-5 hidden items-center gap-2 rounded-lg bg-[#C8A96B] px-3 py-2 text-[10px] font-bold text-[#101317] sm:flex"
+                >
+                  <Plus size={13} /> New order
+                </button>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[650px] text-left">
+                  <thead>
+                    <tr className="border-b border-white/[0.07] bg-white/[0.02]">
+                      {[
+                        "Work order",
+                        "Pothole",
+                        "Priority",
+                        "Contractor",
+                        "Status",
+                        "Date",
+                      ].map((heading) => (
+                        <th
+                          key={heading}
+                          className="px-4 py-3 text-[9px] font-semibold uppercase tracking-wider text-[#737D85]"
+                        >
+                          {heading}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentWorkOrders.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={6}
+                          className="px-4 py-10 text-center text-xs text-[#8B969E]"
+                        >
+                          No work orders available.
+                        </td>
+                      </tr>
+                    ) : (
+                      recentWorkOrders.map((order) => (
+                        <tr
+                          key={order.id}
+                          className="border-b border-white/[0.05] transition hover:bg-white/[0.025]"
+                        >
+                          <td className="px-4 py-4 text-xs font-semibold text-[#C8A96B]">
+                            WO-{String(order.id).padStart(5, "0")}
+                          </td>
+                          <td className="px-4 py-4 text-xs text-[#AAB2B8]">
+                            PV-{String(order.pothole_id).padStart(5, "0")}
+                          </td>
+                          <td className="px-4 py-4">
+                            <Badge value={order.priority} />
+                          </td>
+                          <td className="px-4 py-4 text-xs text-[#AAB2B8]">
+                            {order.contractor_name}
+                          </td>
+                          <td className="px-4 py-4">
+                            <Badge value={order.status} />
+                          </td>
+                          <td className="px-4 py-4 text-[10px] text-[#8B969E]">
+                            {formatDate(order.created_at)}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </Panel>
+          </div>
+
+          {/* QUICK ACTIONS */}
+          <Panel className="mb-5 p-5">
+            <SectionTitle
+              eyebrow="Operational shortcuts"
+              title="Quick actions"
+            />
+
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              {[
+                { name: "Report pothole", icon: AlertTriangle, action: "report" },
+                { name: "Schedule inspection", icon: CalendarDays, action: "inspection" },
+                { name: "Create work order", icon: Wrench, action: "create" },
+                { name: "Generate report", icon: FileText, action: "report" },
+              ].map(({ name, icon: Icon, action }) => (
+                <button
+                  key={name}
+                  onClick={() => setModal(action)}
+                  className="group flex min-h-[100px] flex-col items-start justify-between rounded-xl border border-white/[0.08] bg-[#222831]/60 p-4 text-left transition hover:border-[#C8A96B]/40 hover:bg-[#222831]"
+                >
+                  <Icon
+                    size={21}
+                    className="text-[#C8A96B] transition group-hover:scale-110"
+                  />
+                  <span className="flex w-full items-center justify-between text-[10px] font-semibold text-[#F4E9D0]">
+                    {name}
+                    <ArrowUpRight size={13} className="text-[#8B969E]" />
+                  </span>
+                </button>
+              ))}
+            </div>
+          </Panel>
+
+          {/* SYSTEM STATUS */}
+          <div className="flex flex-col justify-between gap-4 rounded-2xl border border-[#C8A96B]/20 bg-gradient-to-r from-[#222831] to-[#181D23] p-5 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#72977D]/10 text-[#72977D]">
+                <ShieldCheck size={20} />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-[#F4E9D0]">
+                  System overview
+                </p>
+                <p className="mt-1 text-[9px] text-[#8B969E]">
+                  Dashboard service indicators
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-x-5 gap-y-3">
+              {["AI Service", "GPS Service", "Database", "Notifications"].map(
+                (service) => (
+                  <span
+                    key={service}
+                    className="flex items-center gap-2 text-[9px] text-[#AAB2B8]"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#72977D]" />
+                    {service}
+                  </span>
+                )
+              )}
+            </div>
+          </div>
+        </div>
       </main>
 
-      {/* Create Work Order Modal */}
+      {/* MOBILE QUICK ACTION */}
+      <button
+        onClick={() => setModal("create")}
+        className="hidden sm:flex fixed bottom-20 right-4 z-40 h-12 w-12 items-center justify-center rounded-full bg-[#C8A96B] text-[#101317] shadow-xl"
+        aria-label="Create work order"
+      >
+        <Plus size={22} />
+      </button>
+
+      {/* MODALS */}
       {modal === "create" && (
         <DashboardModal
-          title="Create Work Order"
-          description="Create a maintenance request for a detected road issue."
+          title="Create work order"
+          description="Prepare a maintenance request."
           onClose={closeModal}
         >
           <div className="space-y-4">
-            <input
-              placeholder="Location / Pothole ID"
-              className="w-full rounded-xl border border-[#cbd6e0] bg-white px-4 py-3 text-sm text-[#263f5a] outline-none focus:border-[#6689ab]"
-            />
-
-            <select className="w-full rounded-xl border border-[#cbd6e0] bg-white px-4 py-3 text-sm text-[#263f5a] outline-none focus:border-[#6689ab]">
-              <option>Select priority</option>
+            <input placeholder="Location / Pothole ID" className={inputClass} />
+            <select className={inputClass} defaultValue="">
+              <option value="" disabled>Select priority</option>
               <option>Critical</option>
               <option>High</option>
               <option>Medium</option>
               <option>Low</option>
             </select>
-
             <textarea
               placeholder="Work description"
               rows={4}
-              className="w-full resize-none rounded-xl border border-[#cbd6e0] bg-white px-4 py-3 text-sm text-[#263f5a] outline-none focus:border-[#6689ab]"
+              className={inputClass}
             />
-
-            <button
-              onClick={closeModal}
-              className="w-full rounded-xl bg-[#285985] py-3 text-sm font-semibold text-white transition hover:bg-[#214c75]"
-            >
-              Create Work Order
+            <button onClick={closeModal} className="w-full rounded-xl bg-[#C8A96B] py-3 text-xs font-bold text-[#101317]">
+              Close
             </button>
+            <p className="text-[10px] text-[#8B969E]">
+              Backend submission is not configured yet.
+            </p>
           </div>
         </DashboardModal>
       )}
 
-      {/* Report Pothole Modal */}
       {modal === "report" && (
         <DashboardModal
-          title="Infrastructure Report"
-          description="Report a road pothole or infrastructure issue."
+          title="Report infrastructure issue"
+          description="Enter the location details."
           onClose={closeModal}
         >
           <div className="space-y-4">
-            <input
-              placeholder="Latitude"
-              className="w-full rounded-xl border border-[#cbd6e0] bg-white px-4 py-3 text-sm text-[#263f5a] outline-none focus:border-[#6689ab]"
-            />
-
-            <input
-              placeholder="Longitude"
-              className="w-full rounded-xl border border-[#cbd6e0] bg-white px-4 py-3 text-sm text-[#263f5a] outline-none focus:border-[#6689ab]"
-            />
-
-            <textarea
-              placeholder="Description"
-              rows={4}
-              className="w-full resize-none rounded-xl border border-[#cbd6e0] bg-white px-4 py-3 text-sm text-[#263f5a] outline-none focus:border-[#6689ab]"
-            />
-
-            <button
-              onClick={closeModal}
-              className="w-full rounded-xl bg-[#285985] py-3 text-sm font-semibold text-white transition hover:bg-[#214c75]"
-            >
-              Continue
+            <input placeholder="Latitude" className={inputClass} />
+            <input placeholder="Longitude" className={inputClass} />
+            <textarea placeholder="Description" rows={4} className={inputClass} />
+            <button onClick={closeModal} className="w-full rounded-xl bg-[#C8A96B] py-3 text-xs font-bold text-[#101317]">
+              Close
             </button>
+            <p className="text-[10px] text-[#8B969E]">
+              Backend submission is not configured yet.
+            </p>
           </div>
         </DashboardModal>
       )}
 
-      {/* Inspection Modal */}
       {modal === "inspection" && (
         <DashboardModal
-          title="Schedule Inspection"
-          description="Schedule a GMC field inspection for a detected pothole."
+          title="Schedule inspection"
+          description="Select a pothole and inspection details."
           onClose={closeModal}
         >
           <div className="space-y-4">
-            <select className="w-full rounded-xl border border-[#cbd6e0] bg-white px-4 py-3 text-sm text-[#263f5a] outline-none">
-              <option>Select pothole</option>
-
-              {potholes.map((pothole) => (
-                <option key={pothole.id} value={pothole.id}>
-                  PV-{String(pothole.id).padStart(5, "0")}
+            <select className={inputClass} defaultValue="">
+              <option value="" disabled>Select pothole</option>
+              {potholes.map((p) => (
+                <option key={p.id} value={p.id}>
+                  PV-{String(p.id).padStart(5, "0")}
                 </option>
               ))}
             </select>
-
-            <input
-              placeholder="Inspector name"
-              className="w-full rounded-xl border border-[#cbd6e0] bg-white px-4 py-3 text-sm text-[#263f5a] outline-none focus:border-[#6689ab]"
-            />
-
-            <input
-              type="date"
-              className="w-full rounded-xl border border-[#cbd6e0] bg-white px-4 py-3 text-sm text-[#263f5a] outline-none focus:border-[#6689ab]"
-            />
-
-            <button
-              onClick={closeModal}
-              className="w-full rounded-xl bg-[#285985] py-3 text-sm font-semibold text-white transition hover:bg-[#214c75]"
-            >
-              Schedule Inspection
+            <input placeholder="Inspector name" className={inputClass} />
+            <input type="date" className={inputClass} />
+            <button onClick={closeModal} className="w-full rounded-xl bg-[#C8A96B] py-3 text-xs font-bold text-[#101317]">
+              Close
             </button>
+            <p className="text-[10px] text-[#8B969E]">
+              Backend submission is not configured yet.
+            </p>
           </div>
         </DashboardModal>
       )}
 
-      {/* Date / Database Modal */}
       {modal === "date" && (
         <DashboardModal
-          title="Live Database"
-          description="Current PotholeVision backend connection."
+          title="Database overview"
+          description="Dashboard data currently loaded."
           onClose={closeModal}
         >
-          <div className="space-y-4">
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
-                  <CheckCircle2 size={19} />
-                </div>
-
-                <div>
-                  <p className="text-sm font-semibold text-[#263f5a]">
-                    PostgreSQL Connected
-                  </p>
-
-                  <p className="mt-1 text-xs text-[#7d8ea0]">
-                    {potholes.length} potholes loaded from the backend.
-                  </p>
-                </div>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              ["Potholes", potholes.length],
+              ["GPS records", gpsPotholes.length],
+              ["Inspections", inspections.length],
+              ["Work orders", workOrders.length],
+              ["AI confidence", `${(averageConfidence * 100).toFixed(1)}%`],
+            ].map(([label, value]) => (
+              <div key={String(label)} className="rounded-xl border border-white/10 bg-[#222831] p-4">
+                <p className="text-[10px] text-[#8B969E]">{label}</p>
+                <p className="mt-2 text-xl font-semibold text-[#C8A96B]">{value}</p>
               </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-[#d5dfe8] bg-white p-4">
-                <p className="text-[10px] text-[#8292a4]">
-                  GPS Locations
-                </p>
-
-                <p className="mt-1 text-xl font-bold text-[#263f5a]">
-                  {gpsPotholes.length}
-                </p>
-              </div>
-
-              <div className="rounded-xl border border-[#d5dfe8] bg-white p-4">
-                <p className="text-[10px] text-[#8292a4]">
-                  AI Confidence
-                </p>
-
-                <p className="mt-1 text-xl font-bold text-[#263f5a]">
-                  {(averageConfidence * 100).toFixed(1)}%
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
         </DashboardModal>
       )}
 
-      {/* Full Map Modal */}
       {modal === "map" && (
         <DashboardModal
-          title="Infrastructure Map"
-          description="Detailed real-time pothole GPS locations."
+          title="Infrastructure GPS map"
+          description="Recorded pothole coordinates."
           onClose={closeModal}
         >
-          <div className="h-[480px] overflow-hidden rounded-xl">
+          <div className="h-[55vh] overflow-hidden rounded-xl">
             <PotholeMap
               potholes={gpsPotholes}
               center={mapCenter}
@@ -1463,305 +1267,141 @@ export default function Dashboard() {
         </DashboardModal>
       )}
 
-      {/* Recent Inspections Modal */}
       {modal === "inspections" && (
         <DashboardModal
-          title="Recent Inspections"
-          description="Latest inspection activity from PostgreSQL."
+          title="Inspection records"
+          description="Inspection activity from the backend."
           onClose={closeModal}
         >
-          <div className="max-h-[420px] space-y-3 overflow-y-auto">
+          <div className="max-h-[60vh] space-y-3 overflow-y-auto">
             {inspections.length === 0 ? (
-              <div className="py-10 text-center text-xs text-[#8292a4]">
-                No inspections available.
-              </div>
-            ) : (
-              inspections.map((inspection) => (
-                <div
-                  key={inspection.id}
-                  className="rounded-xl border border-[#d5dfe8] bg-white p-4"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-bold text-[#263f5a]">
-                        Inspection #{inspection.id}
-                      </p>
-
-                      <p className="mt-1 text-[10px] text-[#8292a4]">
-                        Pothole #{inspection.pothole_id} •{" "}
-                        {inspection.inspector_name}
-                      </p>
-                    </div>
-
-                    <StatusBadge status={inspection.status} />
-                  </div>
-
-                  {inspection.confirmed_severity && (
-                    <div className="mt-3">
-                      <SeverityBadge
-                        type={inspection.confirmed_severity}
-                      />
-                    </div>
-                  )}
-
-                  {inspection.inspection_notes && (
-                    <p className="mt-3 text-xs leading-5 text-[#62758a]">
-                      {inspection.inspection_notes}
-                    </p>
-                  )}
-
-                  <p className="mt-3 text-[9px] text-[#94a2b1]">
-                    {formatDateTime(
-                      inspection.inspected_at ||
-                        inspection.created_at
-                    )}
+              <p className="py-8 text-center text-xs text-[#8B969E]">No inspections available.</p>
+            ) : inspections.map((item) => (
+              <div key={item.id} className="rounded-xl border border-white/10 bg-[#222831] p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-xs font-semibold text-[#F4E9D0]">
+                    Inspection #{item.id}
                   </p>
+                  <Badge value={item.status} />
                 </div>
-              ))
-            )}
+                <p className="mt-2 text-[10px] text-[#8B969E]">
+                  Pothole #{item.pothole_id} Â· {item.inspector_name}
+                </p>
+                {item.inspection_notes && (
+                  <p className="mt-3 text-xs text-[#AAB2B8]">{item.inspection_notes}</p>
+                )}
+              </div>
+            ))}
           </div>
         </DashboardModal>
       )}
 
-      {/* Affected Locations Modal */}
       {modal === "roads" && (
         <DashboardModal
-          title="Affected Locations"
-          description="GPS-based pothole concentration areas."
+          title="Affected locations"
+          description="GPS-based pothole concentration."
           onClose={closeModal}
         >
           <div className="space-y-3">
-            {affectedLocations.length === 0 ? (
-              <div className="py-8 text-center text-xs text-[#8292a4]">
-                No GPS data available.
-              </div>
-            ) : (
-              affectedLocations.map((location, index) => (
-                <div
-                  key={location.name}
-                  className="flex items-center justify-between rounded-xl border border-[#d5dfe8] bg-white p-4"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#e4edf5] text-[#557ca5]">
-                      <Route size={17} />
-                    </div>
-
-                    <div>
-                      <p className="text-xs font-semibold text-[#263f5a]">
-                        Area {index + 1}
-                      </p>
-
-                      <p className="mt-1 text-[10px] text-[#8292a4]">
-                        {location.name}
-                      </p>
-                    </div>
+            {affectedLocations.map((location, index) => (
+              <div key={location.name} className="flex items-center justify-between rounded-xl border border-white/10 bg-[#222831] p-4">
+                <div className="flex items-center gap-3">
+                  <Route size={17} className="text-[#C8A96B]" />
+                  <div>
+                    <p className="text-xs font-semibold text-[#F4E9D0]">Area {index + 1}</p>
+                    <p className="mt-1 text-[10px] text-[#8B969E]">{location.name}</p>
                   </div>
-
-                  <span className="text-sm font-bold text-[#29445f]">
-                    {location.count}
-                  </span>
                 </div>
-              ))
+                <span className="text-sm font-semibold text-[#C8A96B]">{location.count}</span>
+              </div>
+            ))}
+            {affectedLocations.length === 0 && (
+              <p className="py-8 text-center text-xs text-[#8B969E]">No GPS data available.</p>
             )}
           </div>
         </DashboardModal>
       )}
 
-      {/* Work Orders Modal */}
       {modal === "orders" && (
         <DashboardModal
-          title="Work Orders"
-          description="Current road maintenance workflow."
+          title="Work orders"
+          description="Current maintenance workflow."
           onClose={closeModal}
         >
-          <div className="max-h-[420px] space-y-3 overflow-y-auto">
+          <div className="max-h-[60vh] space-y-3 overflow-y-auto">
             {workOrders.length === 0 ? (
-              <div className="py-10 text-center text-xs text-[#8292a4]">
-                No work orders available.
-              </div>
-            ) : (
-              workOrders.map((order) => (
-                <div
-                  key={order.id}
-                  className="rounded-xl border border-[#d5dfe8] bg-white p-4"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-bold text-[#263f5a]">
-                        WO-{String(order.id).padStart(5, "0")}
-                      </p>
-
-                      <p className="mt-1 text-[10px] text-[#8292a4]">
-                        Pothole #{order.pothole_id}
-                      </p>
-                    </div>
-
-                    <StatusBadge status={order.status} />
-                  </div>
-
-                  <div className="mt-3 flex items-center justify-between">
-                    <span className="text-[10px] text-[#718397]">
-                      Contractor
-                    </span>
-
-                    <span className="text-[10px] font-semibold text-[#526a82]">
-                      {order.contractor_name}
-                    </span>
-                  </div>
-
-                  <div className="mt-2 flex items-center justify-between">
-                    <span className="text-[10px] text-[#718397]">
-                      Priority
-                    </span>
-
-                    <SeverityBadge type={order.priority} />
-                  </div>
+              <p className="py-8 text-center text-xs text-[#8B969E]">No work orders available.</p>
+            ) : workOrders.map((order) => (
+              <div key={order.id} className="rounded-xl border border-white/10 bg-[#222831] p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-xs font-semibold text-[#C8A96B]">
+                    WO-{String(order.id).padStart(5, "0")}
+                  </p>
+                  <Badge value={order.status} />
                 </div>
-              ))
-            )}
+                <p className="mt-2 text-[10px] text-[#8B969E]">
+                  Pothole #{order.pothole_id}
+                </p>
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="text-[10px] text-[#8B969E]">Contractor</span>
+                  <span className="text-xs text-[#F4E9D0]">{order.contractor_name}</span>
+                </div>
+                <div className="mt-2 flex items-center justify-between">
+                  <span className="text-[10px] text-[#8B969E]">Priority</span>
+                  <Badge value={order.priority} />
+                </div>
+              </div>
+            ))}
           </div>
         </DashboardModal>
       )}
 
-      {/* Individual Inspection */}
       {modal?.startsWith("inspection-") && (
         <DashboardModal
-          title="Inspection Details"
-          description="Inspection record from PostgreSQL."
+          title="Inspection details"
+          description="Inspection record."
           onClose={closeModal}
         >
           {(() => {
-            const inspectionId = Number(
-              modal.replace("inspection-", "")
-            );
+            const id = Number(modal.replace("inspection-", ""));
+            const item = inspections.find((i) => i.id === id);
 
-            const inspection = inspections.find(
-              (item) => item.id === inspectionId
-            );
-
-            if (!inspection) {
-              return (
-                <div className="py-8 text-center text-xs text-[#8292a4]">
-                  Inspection not found.
-                </div>
-              );
+            if (!item) {
+              return <p className="text-xs text-[#8B969E]">Inspection not found.</p>;
             }
 
             return (
               <div className="space-y-4">
-                <div className="rounded-xl border border-[#d5dfe8] bg-white p-4">
-                  <p className="text-[10px] text-[#8292a4]">
-                    Inspection ID
-                  </p>
-
-                  <p className="mt-1 text-sm font-bold text-[#263f5a]">
-                    #{inspection.id}
-                  </p>
+                <div className="rounded-xl border border-white/10 bg-[#222831] p-4">
+                  <p className="text-[10px] text-[#8B969E]">Inspection ID</p>
+                  <p className="mt-1 text-lg font-semibold text-[#C8A96B]">#{item.id}</p>
                 </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-xl border border-[#d5dfe8] bg-white p-4">
-                    <p className="text-[10px] text-[#8292a4]">
-                      Pothole
-                    </p>
-
-                    <p className="mt-1 text-sm font-bold text-[#263f5a]">
-                      PV-
-                      {String(inspection.pothole_id).padStart(
-                        5,
-                        "0"
-                      )}
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl border border-[#d5dfe8] bg-white p-4">
-                    <p className="text-[10px] text-[#8292a4]">
-                      Severity
-                    </p>
-
-                    <div className="mt-2">
-                      <SeverityBadge
-                        type={
-                          inspection.confirmed_severity ||
-                          "medium"
-                        }
-                      />
-                    </div>
-                  </div>
+                <div className="rounded-xl border border-white/10 bg-[#222831] p-4">
+                  <p className="text-[10px] text-[#8B969E]">Pothole</p>
+                  <p className="mt-1 text-sm text-[#F4E9D0]">PV-{String(item.pothole_id).padStart(5, "0")}</p>
                 </div>
-
-                <div className="rounded-xl border border-[#d5dfe8] bg-white p-4">
-                  <p className="text-[10px] text-[#8292a4]">
-                    Inspector
-                  </p>
-
-                  <p className="mt-1 text-sm font-semibold text-[#263f5a]">
-                    {inspection.inspector_name}
-                  </p>
+                <div className="rounded-xl border border-white/10 bg-[#222831] p-4">
+                  <p className="text-[10px] text-[#8B969E]">Inspector</p>
+                  <p className="mt-1 text-sm text-[#F4E9D0]">{item.inspector_name}</p>
                 </div>
-
-                {inspection.inspection_notes && (
-                  <div className="rounded-xl border border-[#d5dfe8] bg-white p-4">
-                    <p className="text-[10px] text-[#8292a4]">
-                      Notes
-                    </p>
-
-                    <p className="mt-2 text-xs leading-5 text-[#62758a]">
-                      {inspection.inspection_notes}
-                    </p>
+                {item.inspection_notes && (
+                  <div className="rounded-xl border border-white/10 bg-[#222831] p-4">
+                    <p className="text-[10px] text-[#8B969E]">Notes</p>
+                    <p className="mt-2 text-xs text-[#AAB2B8]">{item.inspection_notes}</p>
                   </div>
                 )}
+                <div className="flex items-center justify-between">
+                  <Badge value={item.status} />
+                  <span className="text-[10px] text-[#8B969E]">
+                    {formatDateTime(item.inspected_at || item.created_at)}
+                  </span>
+                </div>
               </div>
             );
           })()}
         </DashboardModal>
       )}
-
-      {/* Generic fallback */}
-      {modal &&
-        ![
-          "create",
-          "report",
-          "inspection",
-          "date",
-          "map",
-          "inspections",
-          "roads",
-          "orders",
-        ].includes(modal) &&
-        !modal.startsWith("inspection-") && (
-          <DashboardModal
-            title={modal}
-            description="PotholeVision dashboard action."
-            onClose={closeModal}
-          >
-            <div className="rounded-xl border border-[#d5dfe8] bg-white p-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e5edf4] text-[#557da5]">
-                  <CheckCircle2 size={19} />
-                </div>
-
-                <div>
-                  <p className="text-sm font-semibold text-[#263f5a]">
-                    Action selected
-                  </p>
-
-                  <p className="mt-1 text-xs text-[#7d8ea0]">
-                    The interface is connected and ready for this
-                    workflow.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <button
-              onClick={closeModal}
-              className="mt-4 w-full rounded-xl bg-[#285985] py-3 text-sm font-semibold text-white transition hover:bg-[#214c75]"
-            >
-              Continue
-            </button>
-          </DashboardModal>
-        )}
     </>
   );
 }
+

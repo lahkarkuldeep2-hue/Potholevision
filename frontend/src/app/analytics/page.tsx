@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -34,6 +34,7 @@ import {
 } from "recharts";
 
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import { LoadingSpinner } from "@/components/ui/LoadingStates";
 
 const API_BASE = "http://127.0.0.1:8000";
 
@@ -88,7 +89,7 @@ const ranges: RangeOption[] = [
   "This Year",
 ];
 
-const COLORS = ["#dc2626", "#f59e0b", "#3b82f6", "#16a34a"];
+const COLORS = ["#A33A3A", "#C8A96B", "#8B969E", "#70B99A"];
 
 function safeNumber(value: unknown): number {
   const number = Number(value);
@@ -695,33 +696,38 @@ export default function AnalyticsPage() {
 
   return (
     <DashboardLayout>
+      {loading && (
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-[#101317]/95 px-4 backdrop-blur-md">
+          <LoadingSpinner label="ANALYZING ROAD INTELLIGENCE" />
+        </div>
+      )}
       <div className="w-full py-6 pl-4 pr-4">
         {/* =====================================================
             HEADER
         ====================================================== */}
         <section className="mb-7 flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div>
-            <p className="mb-2 text-[13px] font-semibold tracking-[0.22em] text-[#4c78a8]">
+            <p className="mb-2 text-[13px] font-semibold tracking-[0.22em] text-[#C8A96B]">
               PERFORMANCE & INSIGHTS
             </p>
 
-            <h1 className="text-[34px] font-bold leading-tight text-[#123052]">
+            <h1 className="text-[34px] font-bold leading-tight text-[#F4E9D0]">
               Infrastructure Analytics
             </h1>
 
-            <p className="mt-2 text-[16px] text-[#66809d]">
+            <p className="mt-2 text-[16px] text-[#A1AAB2]">
               City-wide road damage, repair performance and
               infrastructure trends.
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
             {/* REFRESH */}
             <button
               type="button"
               onClick={() => fetchAnalyticsData(true)}
               disabled={refreshing}
-              className="flex h-[48px] items-center gap-3 rounded-xl border border-[#c8d5e2] bg-white px-5 text-[15px] font-medium text-[#365d83] shadow-[0_3px_12px_rgba(20,48,80,0.08)] transition hover:border-[#7da3ca] hover:bg-[#f8fafc] disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex h-[48px] w-full items-center justify-center gap-2 rounded-xl border border-[#3A424C] bg-[#1A2026] px-3 text-sm font-medium text-[#D8BD8A] shadow-[0_3px_12px_rgba(20,48,80,0.08)] transition hover:border-[#C8A96B] hover:bg-[#222831] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:justify-start sm:gap-3 sm:px-5 sm:text-[15px]"
             >
               <RefreshCw
                 size={18}
@@ -733,20 +739,20 @@ export default function AnalyticsPage() {
             </button>
 
             {/* DATE RANGE */}
-            <div className="relative">
+            <div className="relative w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() =>
                   setShowRange((prev) => !prev)
                 }
-                className="flex h-[48px] items-center gap-3 rounded-xl border border-[#c8d5e2] bg-white px-5 text-[15px] font-medium text-[#365d83] shadow-[0_3px_12px_rgba(20,48,80,0.08)] transition hover:border-[#7da3ca] hover:bg-[#f8fafc]"
+                className="flex h-[48px] w-full items-center justify-center gap-2 rounded-xl border border-[#3A424C] bg-[#1A2026] px-3 text-sm font-medium text-[#D8BD8A] shadow-[0_3px_12px_rgba(20,48,80,0.08)] transition hover:border-[#C8A96B] hover:bg-[#222831] sm:w-auto sm:justify-start sm:gap-3 sm:px-5 sm:text-[15px]"
               >
                 <Calendar size={18} />
                 {range}
               </button>
 
               {showRange && (
-                <div className="absolute right-0 top-[56px] z-40 w-48 overflow-hidden rounded-xl border border-[#d1dce7] bg-white shadow-xl">
+                <div className="absolute right-0 top-[56px] z-40 w-48 overflow-hidden rounded-xl border border-[#343B43] bg-[#1A2026] shadow-xl">
                   {ranges.map((item) => (
                     <button
                       type="button"
@@ -757,8 +763,8 @@ export default function AnalyticsPage() {
                       }}
                       className={`block w-full px-4 py-3 text-left text-sm transition ${
                         range === item
-                          ? "bg-[#eef4f9] font-semibold text-[#285f91]"
-                          : "text-[#365d83] hover:bg-[#f5f8fb]"
+                          ? "bg-[#2A3038] font-semibold text-[#C8A96B]"
+                          : "text-[#D8BD8A] hover:bg-[#2A3038]"
                       }`}
                     >
                       {item}
@@ -772,7 +778,7 @@ export default function AnalyticsPage() {
             <button
               type="button"
               onClick={handleExport}
-              className="flex h-[48px] items-center gap-3 rounded-xl bg-[#285f91] px-5 text-[15px] font-semibold text-white shadow-[0_5px_14px_rgba(40,95,145,0.22)] transition hover:bg-[#214f79] active:translate-y-[1px]"
+              className="col-span-2 flex h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-[#C8A96B] px-5 text-sm font-semibold text-[#101317] shadow-[0_5px_14px_rgba(20,20,20,0.22)] transition hover:bg-[#B99558] active:translate-y-[1px] sm:col-span-1 sm:w-auto sm:text-[15px]"
             >
               <Download size={18} />
               {exported ? "Exported" : "Export Report"}
@@ -798,24 +804,24 @@ export default function AnalyticsPage() {
         {/* =====================================================
             LIVE DATA STATUS
         ====================================================== */}
-        <section className="mb-7 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#cbd7e3] bg-white px-5 py-4 shadow-[0_4px_14px_rgba(20,48,80,0.05)]">
+        <section className="mb-7 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#343B43] bg-[#1A2026] px-5 py-4 shadow-[0_4px_14px_rgba(20,48,80,0.05)]">
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#eef7f3] text-emerald-600">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#18352D] text-emerald-600">
               <Activity size={18} />
             </span>
 
             <div>
-              <p className="text-sm font-semibold text-[#123052]">
+              <p className="text-sm font-semibold text-[#F4E9D0]">
                 Live PostgreSQL Analytics
               </p>
 
-              <p className="text-xs text-[#7890a7]">
+              <p className="text-xs text-[#8B969E]">
                 Real infrastructure records from PotholeVision
               </p>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-5 text-xs text-[#607b96]">
+          <div className="flex flex-wrap items-center gap-5 text-xs text-[#A1AAB2]">
             <span className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
               Database Connected
@@ -838,9 +844,9 @@ export default function AnalyticsPage() {
         ====================================================== */}
         <section className="mb-7 grid grid-cols-2 gap-3 sm:gap-5 xl:grid-cols-4">
           {/* TOTAL */}
-          <div className="rounded-2xl border border-[#cbd7e3] bg-white p-3 shadow-[0_4px_14px_rgba(20,48,80,0.06)] sm:p-6">
+          <div className="rounded-2xl border border-[#343B43] bg-[#1A2026] p-3 shadow-[0_4px_14px_rgba(20,48,80,0.06)] sm:p-6">
             <div className="flex items-start justify-between">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#eaf2fa] text-[#3d73a6]">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#2A3038] text-[#C8A96B]">
                 <AlertTriangle size={18} />
               </div>
 
@@ -861,23 +867,23 @@ export default function AnalyticsPage() {
               </span>
             </div>
 
-            <p className="mt-3 text-[11px] text-[#66809d] sm:mt-5 sm:text-sm">
+            <p className="mt-3 text-[11px] text-[#A1AAB2] sm:mt-5 sm:text-sm">
               Total Potholes
             </p>
 
-            <h2 className="mt-1 text-[22px] font-bold text-[#123052] sm:text-[31px]">
-              {loading ? "—" : formatNumber(totalPotholes)}
+            <h2 className="mt-1 text-[22px] font-bold text-[#F4E9D0] sm:text-[31px]">
+              {loading ? "â€”" : formatNumber(totalPotholes)}
             </h2>
 
-            <p className="mt-1 text-[10px] text-[#8a9bad] sm:text-sm">
+            <p className="mt-1 text-[10px] text-[#8B969E] sm:text-sm">
               Real database records
             </p>
           </div>
 
           {/* CRITICAL */}
-          <div className="rounded-2xl border border-[#cbd7e3] bg-white p-3 shadow-[0_4px_14px_rgba(20,48,80,0.06)] sm:p-6">
+          <div className="rounded-2xl border border-[#343B43] bg-[#1A2026] p-3 shadow-[0_4px_14px_rgba(20,48,80,0.06)] sm:p-6">
             <div className="flex items-start justify-between">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#fff0f0] text-red-500">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#3A2022] text-red-500">
                 <AlertTriangle size={18} />
               </div>
 
@@ -887,12 +893,12 @@ export default function AnalyticsPage() {
               </span>
             </div>
 
-            <p className="mt-3 text-[11px] text-[#66809d] sm:mt-5 sm:text-sm">
+            <p className="mt-3 text-[11px] text-[#A1AAB2] sm:mt-5 sm:text-sm">
               Critical Issues
             </p>
 
-            <h2 className="mt-1 text-[22px] font-bold text-[#123052] sm:text-[31px]">
-              {loading ? "—" : formatNumber(criticalCount)}
+            <h2 className="mt-1 text-[22px] font-bold text-[#F4E9D0] sm:text-[31px]">
+              {loading ? "â€”" : formatNumber(criticalCount)}
             </h2>
 
             <p className="mt-1 text-[10px] text-red-500 sm:text-sm">
@@ -901,9 +907,9 @@ export default function AnalyticsPage() {
           </div>
 
           {/* RESOLVED */}
-          <div className="rounded-2xl border border-[#cbd7e3] bg-white p-3 shadow-[0_4px_14px_rgba(20,48,80,0.06)] sm:p-6">
+          <div className="rounded-2xl border border-[#343B43] bg-[#1A2026] p-3 shadow-[0_4px_14px_rgba(20,48,80,0.06)] sm:p-6">
             <div className="flex items-start justify-between">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#eef7f3] text-emerald-600">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#18352D] text-emerald-600">
                 <CheckCircle2 size={18} />
               </div>
 
@@ -913,12 +919,12 @@ export default function AnalyticsPage() {
               </span>
             </div>
 
-            <p className="mt-3 text-[11px] text-[#66809d] sm:mt-5 sm:text-sm">
+            <p className="mt-3 text-[11px] text-[#A1AAB2] sm:mt-5 sm:text-sm">
               Resolved
             </p>
 
-            <h2 className="mt-1 text-[22px] font-bold text-[#123052] sm:text-[31px]">
-              {loading ? "—" : formatNumber(resolvedCount)}
+            <h2 className="mt-1 text-[22px] font-bold text-[#F4E9D0] sm:text-[31px]">
+              {loading ? "â€”" : formatNumber(resolvedCount)}
             </h2>
 
             <p className="mt-1 text-[10px] text-emerald-600 sm:text-sm">
@@ -927,29 +933,29 @@ export default function AnalyticsPage() {
           </div>
 
           {/* AI CONFIDENCE */}
-          <div className="rounded-2xl border border-[#cbd7e3] bg-white p-3 shadow-[0_4px_14px_rgba(20,48,80,0.06)] sm:p-6">
+          <div className="rounded-2xl border border-[#343B43] bg-[#1A2026] p-3 shadow-[0_4px_14px_rgba(20,48,80,0.06)] sm:p-6">
             <div className="flex items-start justify-between">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#edf4fb] text-[#3d73a6]">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#2A3038] text-[#C8A96B]">
                 <BarChart3 size={18} />
               </div>
 
-              <span className="flex items-center gap-1 text-[10px] font-semibold text-[#326c9f] sm:text-sm">
+              <span className="flex items-center gap-1 text-[10px] font-semibold text-[#C8A96B] sm:text-sm">
                 <Activity size={15} />
                 AI
               </span>
             </div>
 
-            <p className="mt-3 text-[11px] text-[#66809d] sm:mt-5 sm:text-sm">
+            <p className="mt-3 text-[11px] text-[#A1AAB2] sm:mt-5 sm:text-sm">
               Avg. AI Confidence
             </p>
 
-            <h2 className="mt-1 text-[22px] font-bold text-[#123052] sm:text-[31px]">
+            <h2 className="mt-1 text-[22px] font-bold text-[#F4E9D0] sm:text-[31px]">
               {loading
-                ? "—"
+                ? "â€”"
                 : formatPercent(averageConfidence)}
             </h2>
 
-            <p className="mt-1 text-[10px] text-[#8a9bad] sm:text-sm">
+            <p className="mt-1 text-[10px] text-[#8B969E] sm:text-sm">
               Based on detected potholes
             </p>
           </div>
@@ -959,46 +965,46 @@ export default function AnalyticsPage() {
             SECONDARY KPI STRIP
         ====================================================== */}
         <section className="mb-7 grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="flex items-center justify-between rounded-xl border border-[#d5e0ea] bg-[#f7fafc] px-5 py-4">
+          <div className="flex items-center justify-between rounded-xl border border-[#343B43] bg-[#1A2026] px-5 py-4">
             <div>
-              <p className="text-xs font-medium text-[#7890a7]">
+              <p className="text-xs font-medium text-[#8B969E]">
                 GPS Coverage
               </p>
 
-              <p className="mt-1 text-xl font-bold text-[#123052]">
+              <p className="mt-1 text-xl font-bold text-[#F4E9D0]">
                 {formatPercent(gpsCoverage)}
               </p>
             </div>
 
-            <MapPin className="text-[#326c9f]" size={22} />
+            <MapPin className="text-[#C8A96B]" size={22} />
           </div>
 
-          <div className="flex items-center justify-between rounded-xl border border-[#d5e0ea] bg-[#f7fafc] px-5 py-4">
+          <div className="flex items-center justify-between rounded-xl border border-[#343B43] bg-[#1A2026] px-5 py-4">
             <div>
-              <p className="text-xs font-medium text-[#7890a7]">
+              <p className="text-xs font-medium text-[#8B969E]">
                 Completed Inspections
               </p>
 
-              <p className="mt-1 text-xl font-bold text-[#123052]">
+              <p className="mt-1 text-xl font-bold text-[#F4E9D0]">
                 {formatNumber(completedInspections)}
               </p>
             </div>
 
-            <FileText className="text-[#326c9f]" size={22} />
+            <FileText className="text-[#C8A96B]" size={22} />
           </div>
 
-          <div className="flex items-center justify-between rounded-xl border border-[#d5e0ea] bg-[#f7fafc] px-5 py-4">
+          <div className="flex items-center justify-between rounded-xl border border-[#343B43] bg-[#1A2026] px-5 py-4">
             <div>
-              <p className="text-xs font-medium text-[#7890a7]">
+              <p className="text-xs font-medium text-[#8B969E]">
                 Active Work Orders
               </p>
 
-              <p className="mt-1 text-xl font-bold text-[#123052]">
+              <p className="mt-1 text-xl font-bold text-[#F4E9D0]">
                 {formatNumber(activeWorkOrders)}
               </p>
             </div>
 
-            <Clock3 className="text-[#326c9f]" size={22} />
+            <Clock3 className="text-[#C8A96B]" size={22} />
           </div>
         </section>
 
@@ -1007,26 +1013,26 @@ export default function AnalyticsPage() {
         ====================================================== */}
         <section className="mb-7 grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
           {/* TREND */}
-          <div className="rounded-2xl border border-[#cbd7e3] bg-white p-6 shadow-[0_4px_14px_rgba(20,48,80,0.06)]">
+          <div className="rounded-2xl border border-[#343B43] bg-[#1A2026] p-6 shadow-[0_4px_14px_rgba(20,48,80,0.06)]">
             <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <h2 className="text-[19px] font-bold text-[#123052]">
+                <h2 className="text-[19px] font-bold text-[#F4E9D0]">
                   Detection & Resolution Trend
                 </h2>
 
-                <p className="mt-1 text-sm text-[#7890a7]">
+                <p className="mt-1 text-sm text-[#8B969E]">
                   Real pothole activity for {range.toLowerCase()}
                 </p>
               </div>
 
-              <div className="flex items-center gap-5 text-xs text-[#607b96]">
+              <div className="flex items-center gap-5 text-xs text-[#A1AAB2]">
                 <span className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-[#285f91]" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#C8A96B]" />
                   Detected
                 </span>
 
                 <span className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-[#16a34a]" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#70B99A]" />
                   Resolved
                 </span>
               </div>
@@ -1034,7 +1040,7 @@ export default function AnalyticsPage() {
 
             <div className="h-[330px] w-full">
               {trendData.length === 0 ? (
-                <div className="flex h-full items-center justify-center text-sm text-[#7890a7]">
+                <div className="flex h-full items-center justify-center text-sm text-[#8B969E]">
                   No trend data available for this period.
                 </div>
               ) : (
@@ -1044,14 +1050,14 @@ export default function AnalyticsPage() {
                 >
                   <LineChart data={trendData}>
                     <CartesianGrid
-                      stroke="#e4ebf2"
+                      stroke="#343B43"
                       vertical={false}
                     />
 
                     <XAxis
                       dataKey="month"
                       tick={{
-                        fill: "#7890a7",
+                        fill: "#8B969E",
                         fontSize: 12,
                       }}
                       axisLine={false}
@@ -1061,7 +1067,7 @@ export default function AnalyticsPage() {
                     <YAxis
                       allowDecimals={false}
                       tick={{
-                        fill: "#7890a7",
+                        fill: "#8B969E",
                         fontSize: 12,
                       }}
                       axisLine={false}
@@ -1071,7 +1077,7 @@ export default function AnalyticsPage() {
                     <Tooltip
                       contentStyle={{
                         borderRadius: 12,
-                        border: "1px solid #d5e0ea",
+                        border: "1px solid #343B43",
                         boxShadow:
                           "0 8px 25px rgba(20,48,80,0.10)",
                       }}
@@ -1080,7 +1086,7 @@ export default function AnalyticsPage() {
                     <Line
                       type="monotone"
                       dataKey="detected"
-                      stroke="#285f91"
+                      stroke="#C8A96B"
                       strokeWidth={3}
                       dot={{ r: 4 }}
                       activeDot={{ r: 6 }}
@@ -1089,7 +1095,7 @@ export default function AnalyticsPage() {
                     <Line
                       type="monotone"
                       dataKey="resolved"
-                      stroke="#16a34a"
+                      stroke="#70B99A"
                       strokeWidth={3}
                       dot={{ r: 4 }}
                       activeDot={{ r: 6 }}
@@ -1101,13 +1107,13 @@ export default function AnalyticsPage() {
           </div>
 
           {/* SEVERITY */}
-          <div className="rounded-2xl border border-[#cbd7e3] bg-white p-6 shadow-[0_4px_14px_rgba(20,48,80,0.06)]">
+          <div className="rounded-2xl border border-[#343B43] bg-[#1A2026] p-6 shadow-[0_4px_14px_rgba(20,48,80,0.06)]">
             <div className="mb-2">
-              <h2 className="text-[19px] font-bold text-[#123052]">
+              <h2 className="text-[19px] font-bold text-[#F4E9D0]">
                 Potholes by Severity
               </h2>
 
-              <p className="mt-1 text-sm text-[#7890a7]">
+              <p className="mt-1 text-sm text-[#8B969E]">
                 Current filtered distribution
               </p>
             </div>
@@ -1142,11 +1148,11 @@ export default function AnalyticsPage() {
 
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
                 <div className="text-center">
-                  <p className="text-[26px] font-bold text-[#123052]">
+                  <p className="text-[26px] font-bold text-[#F4E9D0]">
                     {formatNumber(totalPotholes)}
                   </p>
 
-                  <p className="text-xs text-[#7890a7]">
+                  <p className="text-xs text-[#8B969E]">
                     Total
                   </p>
                 </div>
@@ -1159,7 +1165,7 @@ export default function AnalyticsPage() {
                   key={item.name}
                   className="flex items-center justify-between text-sm"
                 >
-                  <span className="flex items-center gap-2 text-[#536f8a]">
+                  <span className="flex items-center gap-2 text-[#A1AAB2]">
                     <span
                       className="h-2.5 w-2.5 rounded-full"
                       style={{
@@ -1170,7 +1176,7 @@ export default function AnalyticsPage() {
                     {item.name}
                   </span>
 
-                  <span className="font-semibold text-[#123052]">
+                  <span className="font-semibold text-[#F4E9D0]">
                     {formatNumber(item.value)}
                   </span>
                 </div>
@@ -1184,14 +1190,14 @@ export default function AnalyticsPage() {
         ====================================================== */}
         <section className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
           {/* GPS AREAS */}
-          <div className="rounded-2xl border border-[#cbd7e3] bg-white p-6 shadow-[0_4px_14px_rgba(20,48,80,0.06)]">
+          <div className="rounded-2xl border border-[#343B43] bg-[#1A2026] p-6 shadow-[0_4px_14px_rgba(20,48,80,0.06)]">
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <h2 className="text-[19px] font-bold text-[#123052]">
+                <h2 className="text-[19px] font-bold text-[#F4E9D0]">
                   Most Affected GPS Areas
                 </h2>
 
-                <p className="mt-1 text-sm text-[#7890a7]">
+                <p className="mt-1 text-sm text-[#8B969E]">
                   Areas with highest pothole concentration
                 </p>
               </div>
@@ -1201,7 +1207,7 @@ export default function AnalyticsPage() {
                 onClick={() => {
                   window.location.href = "/live-map";
                 }}
-                className="text-sm font-semibold text-[#326c9f] transition hover:text-[#214f79]"
+                className="text-sm font-semibold text-[#C8A96B] transition hover:text-[#B99558]"
               >
                 View Map
               </button>
@@ -1209,7 +1215,7 @@ export default function AnalyticsPage() {
 
             <div className="h-[290px]">
               {gpsAreaData.length === 0 ? (
-                <div className="flex h-full items-center justify-center rounded-xl border border-dashed border-[#d5e0ea] bg-[#f8fafc] text-sm text-[#7890a7]">
+                <div className="flex h-full items-center justify-center rounded-xl border border-dashed border-[#343B43] bg-[#1A2026] text-sm text-[#8B969E]">
                   No GPS locations available for this filter.
                 </div>
               ) : (
@@ -1226,7 +1232,7 @@ export default function AnalyticsPage() {
                     }}
                   >
                     <CartesianGrid
-                      stroke="#e4ebf2"
+                      stroke="#343B43"
                       horizontal={false}
                     />
 
@@ -1234,7 +1240,7 @@ export default function AnalyticsPage() {
                       type="number"
                       allowDecimals={false}
                       tick={{
-                        fill: "#7890a7",
+                        fill: "#8B969E",
                         fontSize: 12,
                       }}
                       axisLine={false}
@@ -1246,7 +1252,7 @@ export default function AnalyticsPage() {
                       dataKey="road"
                       width={125}
                       tick={{
-                        fill: "#536f8a",
+                        fill: "#A1AAB2",
                         fontSize: 11,
                       }}
                       axisLine={false}
@@ -1257,7 +1263,7 @@ export default function AnalyticsPage() {
 
                     <Bar
                       dataKey="potholes"
-                      fill="#326c9f"
+                      fill="#C8A96B"
                       radius={[0, 6, 6, 0]}
                       barSize={24}
                     />
@@ -1268,31 +1274,31 @@ export default function AnalyticsPage() {
           </div>
 
           {/* INSIGHTS */}
-          <div className="rounded-2xl border border-[#cbd7e3] bg-white p-6 shadow-[0_4px_14px_rgba(20,48,80,0.06)]">
+          <div className="rounded-2xl border border-[#343B43] bg-[#1A2026] p-6 shadow-[0_4px_14px_rgba(20,48,80,0.06)]">
             <div className="mb-6">
-              <h2 className="text-[19px] font-bold text-[#123052]">
+              <h2 className="text-[19px] font-bold text-[#F4E9D0]">
                 Infrastructure Insights
               </h2>
 
-              <p className="mt-1 text-sm text-[#7890a7]">
+              <p className="mt-1 text-sm text-[#8B969E]">
                 Live observations from the database
               </p>
             </div>
 
             <div className="space-y-4">
               {/* DETECTION */}
-              <div className="rounded-xl border border-[#d9e4ed] bg-[#f7fafc] p-4">
+              <div className="rounded-xl border border-[#343B43] bg-[#1A2026] p-4">
                 <div className="flex gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#e8f1f9] text-[#326c9f]">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#2A3038] text-[#C8A96B]">
                     <Activity size={19} />
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-semibold text-[#123052]">
+                    <h3 className="text-sm font-semibold text-[#F4E9D0]">
                       Detection activity
                     </h3>
 
-                    <p className="mt-1 text-xs leading-5 text-[#7188a0]">
+                    <p className="mt-1 text-xs leading-5 text-[#8B969E]">
                       {formatNumber(totalPotholes)} potholes
                       were recorded in the selected reporting
                       period.
@@ -1302,18 +1308,18 @@ export default function AnalyticsPage() {
               </div>
 
               {/* RESOLUTION */}
-              <div className="rounded-xl border border-[#d9e4ed] bg-[#f7fafc] p-4">
+              <div className="rounded-xl border border-[#343B43] bg-[#1A2026] p-4">
                 <div className="flex gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#eef8f2] text-emerald-600">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#18352D] text-emerald-600">
                     <CheckCircle2 size={19} />
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-semibold text-[#123052]">
+                    <h3 className="text-sm font-semibold text-[#F4E9D0]">
                       Resolution performance
                     </h3>
 
-                    <p className="mt-1 text-xs leading-5 text-[#7188a0]">
+                    <p className="mt-1 text-xs leading-5 text-[#8B969E]">
                       {formatNumber(resolvedCount)} potholes are
                       currently marked resolved, giving a{" "}
                       {formatPercent(resolutionRate)} resolution
@@ -1324,18 +1330,18 @@ export default function AnalyticsPage() {
               </div>
 
               {/* GPS */}
-              <div className="rounded-xl border border-[#d9e4ed] bg-[#f7fafc] p-4">
+              <div className="rounded-xl border border-[#343B43] bg-[#1A2026] p-4">
                 <div className="flex gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#fff7e8] text-amber-600">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#392F1E] text-amber-600">
                     <MapPin size={19} />
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-semibold text-[#123052]">
+                    <h3 className="text-sm font-semibold text-[#F4E9D0]">
                       GPS network coverage
                     </h3>
 
-                    <p className="mt-1 text-xs leading-5 text-[#7188a0]">
+                    <p className="mt-1 text-xs leading-5 text-[#8B969E]">
                       {formatNumber(gpsCount)} pothole records
                       currently contain usable GPS coordinates.
                     </p>
@@ -1344,18 +1350,18 @@ export default function AnalyticsPage() {
               </div>
 
               {/* AI */}
-              <div className="rounded-xl border border-[#d9e4ed] bg-[#f7fafc] p-4">
+              <div className="rounded-xl border border-[#343B43] bg-[#1A2026] p-4">
                 <div className="flex gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#edf4fb] text-[#326c9f]">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#2A3038] text-[#C8A96B]">
                     <BarChart3 size={19} />
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-semibold text-[#123052]">
+                    <h3 className="text-sm font-semibold text-[#F4E9D0]">
                       AI detection quality
                     </h3>
 
-                    <p className="mt-1 text-xs leading-5 text-[#7188a0]">
+                    <p className="mt-1 text-xs leading-5 text-[#8B969E]">
                       Average YOLO confidence across the selected
                       records is{" "}
                       {formatPercent(averageConfidence)}.
@@ -1368,7 +1374,7 @@ export default function AnalyticsPage() {
             <button
               type="button"
               onClick={handleExport}
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-[#cbd9e6] bg-white py-3 text-sm font-semibold text-[#326c9f] transition hover:bg-[#f4f8fb]"
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-[#343B43] bg-[#1A2026] py-3 text-sm font-semibold text-[#C8A96B] transition hover:bg-[#2A3038]"
             >
               <FileText size={17} />
               Export Detailed Report
@@ -1379,26 +1385,26 @@ export default function AnalyticsPage() {
         {/* =====================================================
             RECENT DATABASE RECORDS
         ====================================================== */}
-        <section className="mt-7 rounded-2xl border border-[#cbd7e3] bg-white shadow-[0_4px_14px_rgba(20,48,80,0.06)]">
-          <div className="flex items-center justify-between border-b border-[#e0e7ee] px-6 py-5">
+        <section className="mt-7 rounded-2xl border border-[#343B43] bg-[#1A2026] shadow-[0_4px_14px_rgba(20,48,80,0.06)]">
+          <div className="flex items-center justify-between border-b border-[#343B43] px-6 py-5">
             <div>
-              <h2 className="text-[19px] font-bold text-[#123052]">
+              <h2 className="text-[19px] font-bold text-[#F4E9D0]">
                 Recent Analytics Records
               </h2>
 
-              <p className="mt-1 text-sm text-[#7890a7]">
+              <p className="mt-1 text-sm text-[#8B969E]">
                 Latest pothole records from PostgreSQL
               </p>
             </div>
 
-            <span className="rounded-lg bg-[#eef4f9] px-3 py-2 text-xs font-semibold text-[#326c9f]">
+            <span className="rounded-lg bg-[#2A3038] px-3 py-2 text-xs font-semibold text-[#C8A96B]">
               {formatNumber(totalPotholes)} Records
             </span>
           </div>
 
-          <div className="divide-y divide-[#e7edf2]">
+          <div className="divide-y divide-[#343B43]">
             {latestPotholes.length === 0 ? (
-              <div className="px-6 py-10 text-center text-sm text-[#7890a7]">
+              <div className="px-6 py-10 text-center text-sm text-[#8B969E]">
                 No pothole records found for the selected filters.
               </div>
             ) : (
@@ -1424,15 +1430,15 @@ export default function AnalyticsPage() {
                 return (
                   <div
                     key={pothole.id}
-                    className="flex flex-col gap-4 px-6 py-4 transition hover:bg-[#fafcfe] md:flex-row md:items-center md:justify-between"
+                    className="flex flex-col gap-4 px-6 py-4 transition hover:bg-[#222831] md:flex-row md:items-center md:justify-between"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#eef4f9] text-[#4b7ca8]">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#2A3038] text-[#4b7ca8]">
                         <MapPin size={18} />
                       </div>
 
                       <div>
-                        <p className="text-sm font-semibold text-[#123052]">
+                        <p className="text-sm font-semibold text-[#F4E9D0]">
                           PV-
                           {String(pothole.id).padStart(
                             5,
@@ -1440,7 +1446,7 @@ export default function AnalyticsPage() {
                           )}
                         </p>
 
-                        <p className="mt-1 text-xs text-[#7890a7]">
+                        <p className="mt-1 text-xs text-[#8B969E]">
                           {pothole.latitude !== null &&
                           pothole.longitude !== null
                             ? `${Number(
@@ -1460,18 +1466,18 @@ export default function AnalyticsPage() {
                         {severityName}
                       </span>
 
-                      <span className="rounded-lg border border-[#d5e0ea] bg-[#f7fafc] px-3 py-1.5 text-xs font-medium text-[#607b96]">
+                      <span className="rounded-lg border border-[#343B43] bg-[#1A2026] px-3 py-1.5 text-xs font-medium text-[#A1AAB2]">
                         {statusName}
                       </span>
 
-                      <span className="text-xs text-[#7890a7]">
+                      <span className="text-xs text-[#8B969E]">
                         {formatPercent(
                           safeNumber(pothole.confidence)
                         )}{" "}
                         AI
                       </span>
 
-                      <span className="text-xs text-[#7890a7]">
+                      <span className="text-xs text-[#8B969E]">
                         {formatDate(pothole.created_at)}
                       </span>
                     </div>
@@ -1494,14 +1500,14 @@ export default function AnalyticsPage() {
               }
             }}
           >
-            <div className="w-full max-w-md rounded-2xl border border-[#d2dee9] bg-white p-6 shadow-2xl">
+            <div className="w-full max-w-md rounded-2xl border border-[#343B43] bg-[#1A2026] p-6 shadow-2xl">
               <div className="mb-5 flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-[#123052]">
+                  <h2 className="text-xl font-bold text-[#F4E9D0]">
                     Analytics Filters
                   </h2>
 
-                  <p className="mt-1 text-sm text-[#7890a7]">
+                  <p className="mt-1 text-sm text-[#8B969E]">
                     Refine your live analytics view.
                   </p>
                 </div>
@@ -1509,7 +1515,7 @@ export default function AnalyticsPage() {
                 <button
                   type="button"
                   onClick={() => setShowFilter(false)}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-[#7890a7] transition hover:bg-[#eef4f8] hover:text-[#365d83]"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-[#8B969E] transition hover:bg-[#2A3038] hover:text-[#D8BD8A]"
                   aria-label="Close filters"
                 >
                   <X size={18} />
@@ -1518,7 +1524,7 @@ export default function AnalyticsPage() {
 
               <div className="space-y-4">
                 <div>
-                  <span className="mb-2 block text-sm font-medium text-[#365d83]">
+                  <span className="mb-2 block text-sm font-medium text-[#D8BD8A]">
                     Date Range
                   </span>
 
@@ -1530,8 +1536,8 @@ export default function AnalyticsPage() {
                         onClick={() => setRange(item)}
                         className={`rounded-lg border px-3 py-2.5 text-left text-xs font-medium transition ${
                           range === item
-                            ? "border-[#8db0d0] bg-[#eef4f9] text-[#285f91]"
-                            : "border-[#d5e0ea] bg-white text-[#607b96] hover:bg-[#f7fafc]"
+                            ? "border-[#8db0d0] bg-[#2A3038] text-[#C8A96B]"
+                            : "border-[#343B43] bg-[#1A2026] text-[#A1AAB2] hover:bg-[#1A2026]"
                         }`}
                       >
                         {item}
@@ -1541,7 +1547,7 @@ export default function AnalyticsPage() {
                 </div>
 
                 <label className="block">
-                  <span className="mb-2 block text-sm font-medium text-[#365d83]">
+                  <span className="mb-2 block text-sm font-medium text-[#D8BD8A]">
                     Severity
                   </span>
 
@@ -1550,7 +1556,7 @@ export default function AnalyticsPage() {
                     onChange={(event) =>
                       setSeverityFilter(event.target.value)
                     }
-                    className="h-11 w-full rounded-lg border border-[#ccd9e5] bg-white px-3 text-sm text-[#365d83] outline-none transition focus:border-[#4b7ca8]"
+                    className="h-11 w-full rounded-lg border border-[#3A424C] bg-[#1A2026] px-3 text-sm text-[#D8BD8A] outline-none transition focus:border-[#4b7ca8]"
                   >
                     <option>All Severity</option>
                     <option>Critical</option>
@@ -1565,7 +1571,7 @@ export default function AnalyticsPage() {
                 <button
                   type="button"
                   onClick={handleResetFilters}
-                  className="flex h-11 flex-1 items-center justify-center rounded-lg border border-[#ccd9e5] bg-white text-sm font-semibold text-[#365d83] transition hover:bg-[#f5f8fb]"
+                  className="flex h-11 flex-1 items-center justify-center rounded-lg border border-[#3A424C] bg-[#1A2026] text-sm font-semibold text-[#D8BD8A] transition hover:bg-[#2A3038]"
                 >
                   Reset
                 </button>
@@ -1573,7 +1579,7 @@ export default function AnalyticsPage() {
                 <button
                   type="button"
                   onClick={handleApplyFilters}
-                  className="flex h-11 flex-1 items-center justify-center rounded-lg bg-[#285f91] text-sm font-semibold text-white transition hover:bg-[#214f79]"
+                  className="flex h-11 flex-1 items-center justify-center rounded-lg bg-[#C8A96B] text-sm font-semibold text-[#101317] transition hover:bg-[#B99558]"
                 >
                   Apply Filters
                 </button>
@@ -1588,7 +1594,7 @@ export default function AnalyticsPage() {
         <button
           type="button"
           onClick={() => setShowFilter(true)}
-          className="fixed bottom-7 right-7 z-30 flex h-12 items-center gap-2 rounded-xl border border-[#cbd9e5] bg-white px-4 text-sm font-semibold text-[#365d83] shadow-lg transition hover:bg-[#f5f9fc]"
+          className="fixed bottom-7 right-7 z-30 flex h-12 items-center gap-2 rounded-xl border border-[#cbd9e5] bg-[#1A2026] px-4 text-sm font-semibold text-[#D8BD8A] shadow-lg transition hover:bg-[#2A3038]"
         >
           <Filter size={17} />
           Filters
@@ -1597,3 +1603,5 @@ export default function AnalyticsPage() {
     </DashboardLayout>
   );
 }
+
+

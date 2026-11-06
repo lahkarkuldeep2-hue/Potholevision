@@ -287,3 +287,312 @@ select:focus-visible {
     opacity: 0.45;
   }
 }
+/* ==========================================
+   POTHOLEVISION — PREMIUM 3D LOADING SYSTEM
+========================================== */
+
+.pv-loader {
+  perspective: 1100px;
+}
+
+.pv-scene {
+  position: relative;
+  width: min(390px, 86vw);
+  height: 245px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 900px;
+}
+
+.pv-road-platform {
+  position: absolute;
+  width: 260px;
+  height: 145px;
+  transform: rotateX(58deg) rotateZ(-25deg);
+  transform-style: preserve-3d;
+  animation: pv-road-float 4s ease-in-out infinite;
+}
+
+.pv-road-surface {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border: 1px solid rgba(200,169,107,.65);
+  border-radius: 12px;
+  background:
+    linear-gradient(90deg, transparent 49%, rgba(244,233,208,.75) 49.5%, rgba(244,233,208,.75) 50.5%, transparent 51%),
+    repeating-linear-gradient(0deg, transparent 0 27px, rgba(244,233,208,.7) 28px 38px, transparent 39px 55px),
+    linear-gradient(145deg, #50565c, #242a30 70%);
+  box-shadow: 0 0 25px rgba(200,169,107,.13), inset 0 0 25px rgba(0,0,0,.55);
+  transform: translateZ(12px);
+}
+
+.pv-road-center {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 49%;
+  width: 2%;
+  background: rgba(244,233,208,.18);
+}
+
+.pv-road-edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #C8A96B;
+  opacity: .75;
+}
+
+.pv-road-edge-left { left: 8px; }
+.pv-road-edge-right { right: 8px; }
+
+.pv-platform-side {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: #171c21;
+  transform: translateZ(-12px) translateY(12px);
+  box-shadow: 0 15px 25px rgba(0,0,0,.65);
+}
+
+.pv-pothole {
+  position: absolute;
+  width: 66px;
+  height: 42px;
+  top: 48%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  border: 2px solid #A33A3A;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #08090a 35%, #291515 65%, #A33A3A 100%);
+  box-shadow: 0 0 16px rgba(163,58,58,.7);
+}
+
+.pv-pothole-inner {
+  position: absolute;
+  inset: 7px;
+  border: 1px dashed rgba(255,100,100,.8);
+  border-radius: 50%;
+}
+
+.pv-pothole-scan {
+  position: absolute;
+  inset: -9px;
+  border: 1px solid rgba(255,75,75,.8);
+  border-radius: 50%;
+  animation: pv-target 2s ease-out infinite;
+}
+
+.pv-scan-beam {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 35%, rgba(255,65,65,.36) 50%, transparent 65%);
+  transform: translateX(-100%);
+  animation: pv-scan 2.8s ease-in-out infinite;
+}
+
+.pv-scanner {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 70px;
+  height: 25px;
+  border: 2px solid #C8A96B;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse, #A33A3A 0%, #222831 65%);
+  box-shadow: 0 0 18px rgba(163,58,58,.55);
+  animation: pv-scanner-float 3s ease-in-out infinite;
+}
+
+.pv-scanner-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ff5555;
+  transform: translate(-50%,-50%);
+  box-shadow: 0 0 12px #ff5555;
+}
+
+.pv-scanner-light {
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  width: 75px;
+  height: 125px;
+  transform: translateX(-50%);
+  clip-path: polygon(43% 0,57% 0,100% 100%,0 100%);
+  background: linear-gradient(to bottom, rgba(163,58,58,.36), transparent);
+  pointer-events: none;
+}
+
+.pv-orbit {
+  position: absolute;
+  width: 330px;
+  height: 145px;
+  border: 1px solid rgba(200,169,107,.18);
+  border-radius: 50%;
+  transform: rotateX(65deg) rotateZ(-20deg);
+}
+
+.pv-orbit-one {
+  border-bottom-color: rgba(163,58,58,.8);
+  animation: pv-orbit 9s linear infinite;
+}
+
+.pv-orbit-two {
+  width: 290px;
+  height: 120px;
+  border-color: rgba(163,58,58,.35);
+  animation: pv-orbit 13s linear infinite reverse;
+}
+
+.pv-progress-track {
+  width: 230px;
+  height: 5px;
+  margin-top: 7px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #292f35;
+}
+
+.pv-progress-fill {
+  width: 42%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #8c2929, #ff5a5a, #C8A96B);
+  box-shadow: 0 0 12px rgba(163,58,58,.7);
+  animation: pv-progress 2.4s ease-in-out infinite;
+}
+
+.pv-compact-orbit {
+  width: 27px;
+  height: 27px;
+  display: grid;
+  place-items: center;
+  border: 2px solid rgba(163,58,58,.3);
+  border-top-color: #A33A3A;
+  border-right-color: #C8A96B;
+  border-radius: 50%;
+  animation: pv-orbit 1.8s linear infinite;
+}
+
+.pv-compact-orbit div {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #A33A3A;
+  box-shadow: 0 0 9px #A33A3A;
+}
+
+@keyframes pv-road-float {
+  0%,100% { transform: rotateX(58deg) rotateZ(-25deg) translateY(0); }
+  50% { transform: rotateX(58deg) rotateZ(-25deg) translateY(-9px); }
+}
+
+@keyframes pv-scanner-float {
+  0%,100% { margin-top: 0; }
+  50% { margin-top: -8px; }
+}
+
+@keyframes pv-scan {
+  0% { transform: translateX(-100%); }
+  70%,100% { transform: translateX(100%); }
+}
+
+@keyframes pv-target {
+  0% { transform: scale(.8); opacity: .8; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+@keyframes pv-orbit {
+  to { transform: rotateX(65deg) rotateZ(340deg); }
+}
+
+@keyframes pv-progress {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(250%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pv-loader *,
+  .pv-compact-orbit {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+
+/* PotholeVision Premium Authentication */
+
+.pv-auth-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 54px;
+  padding: 0 16px;
+  border: 1px solid #343B43;
+  border-radius: 12px;
+  background: rgba(34,40,49,.75);
+  color: #8B969E;
+  transition: border-color .25s ease, box-shadow .25s ease, background .25s ease;
+}
+
+.pv-auth-input-wrap:focus-within {
+  border-color: rgba(200,169,107,.75);
+  background: #222831;
+  box-shadow: 0 0 0 3px rgba(200,169,107,.08);
+}
+
+.pv-auth-input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #F4E9D0;
+  font-size: 13px;
+}
+
+.pv-auth-input::placeholder {
+  color: #68737C;
+}
+
+
+/* ===== PotholeVision Premium Dashboard Background ===== */
+
+body {
+  background-color: #171c22;
+}
+
+body:has([class*="bg-[#101317]"]) {
+  background:
+    radial-gradient(ellipse at 15% 10%, rgba(200,169,107,.10), transparent 36%),
+    radial-gradient(ellipse at 85% 35%, rgba(93,112,126,.12), transparent 38%),
+    linear-gradient(135deg, #171c22, #222831 50%, #151a20);
+}
+
+body:has([class*="bg-[#101317]"])::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: .17;
+  background:
+    repeating-radial-gradient(
+      ellipse at 85% 12%,
+      transparent 0 38px,
+      rgba(200,169,107,.22) 39px,
+      transparent 40px 76px
+    );
+  mask-image: linear-gradient(135deg, transparent, black 55%, transparent);
+}
+
